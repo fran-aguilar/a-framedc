@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/myusername/aframe-barchart-component.git"
+    "url": "git+https://github.com/fran-aguilar/a-framedc.git"
   },
   "keywords": [
     "aframe",
@@ -33,9 +33,9 @@
   "author": "Jane John <jj@foo.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/myusername/aframe-barchart-component/issues"
+    "url": "https://github.com/fran-aguilar/a-framedc/issues"
   },
-  "homepage": "https://github.com/myusername/aframe-barchart-component#readme",
+  "homepage": "https://github.com/fran-aguilar/a-framedc#readme",
   "devDependencies": {
     "aframe": "^0.4.0",
     "browserify": "^13.0.0",
