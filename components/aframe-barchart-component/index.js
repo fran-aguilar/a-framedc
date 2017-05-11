@@ -6,7 +6,7 @@ if (typeof AFRAME === 'undefined') {
 
 /**
  * Barchart component for A-Frame.
- */
+ */   
 AFRAME.registerComponent('barchart', {
     schema: {
         gridson: { default: true },
