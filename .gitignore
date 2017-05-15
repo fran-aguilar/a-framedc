@@ -1,4 +1,5 @@
 node_modules/
 gh_pages/
+examples/
 npm-debug.log*
 .npm
