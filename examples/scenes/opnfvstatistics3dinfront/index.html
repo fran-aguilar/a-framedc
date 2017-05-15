@@ -3,6 +3,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.js" integrity="sha256-cIcPwh2GcosI6bCl+ZAZt2j0Sk1QfgQ1ejEpjYOfa8g=" crossorigin="anonymous"></script>
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-text-geometry-component/dist/aframe-text-geometry-component.min.js"></script> 
     <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script>
     <script src="../../js/aframedc.js"></script>
  
@@ -33,9 +34,11 @@
             </a-entity>
             <a-entity id="target" position="0 0 0"></a-entity>
         
-            <a-entity position="-11 18 -15 ">
-                <a-image src="#opnfvlogo" width="3" height="3" position="1 0.6"></a-image>
-                <a-entity position="3  0.3 0" text-geometry="value:GIT ANALYTICS;" material="color:black"></a-entity>
+
+            <a-entity position="-9 10 -15 " geometry="primitive:box;depth:3;height:20;width:12" material="color: black">
+                <a-image src="#opnfvlogo" width="6" height="6" position="0 8.6 1.6"></a-image>
+                <a-plane color="#FFF" height="17" width="11.5" position="0 1 1.55"></a-plane>
+                <a-entity position="3  0.3 1.61" text-geometry="value:GIT ANALYTICS;" material="color:black"></a-entity>
             </a-entity>
             <a-image   width ="10" height="10"
                       src="#opnfvlogo"
