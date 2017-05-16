@@ -1789,7 +1789,7 @@ AFRAME.registerComponent("envmap", {
         height: { default: 500 },
         depth: { default: 500 }
     },
-    init: function () {
+    update: function () {
 
         var imagePrefix = this.data.imgprefix;
         var directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
