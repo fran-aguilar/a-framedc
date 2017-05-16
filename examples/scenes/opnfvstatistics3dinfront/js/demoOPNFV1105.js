@@ -628,15 +628,15 @@ window.onload = function () {
                 }
             }
         });
-        var groundentity = document.querySelector("#groundentity");
-        var toggle = document.querySelector("#toggleground");
-        toggle.addEventListener("click", function (ev) {
-            var visibility = groundentity.getAttribute("visible");
-            if (visibility === false) visibility = true;
-            else visibility = false;
-            groundentity.setAttribute("visible", visibility);
+        //var groundentity = document.querySelector("#groundentity");
+        //var toggle = document.querySelector("#toggleground");
+        //toggle.addEventListener("click", function (ev) {
+        //    var visibility = groundentity.getAttribute("visible");
+        //    if (visibility === false) visibility = true;
+        //    else visibility = false;
+        //    groundentity.setAttribute("visible", visibility);
 
-        });
+        //});
 
         var textsky = document.querySelector("#textSky");
         var map = document.querySelector("#skymap");
