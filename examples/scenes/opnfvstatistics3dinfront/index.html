@@ -3,11 +3,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.js" integrity="sha256-cIcPwh2GcosI6bCl+ZAZt2j0Sk1QfgQ1ejEpjYOfa8g=" crossorigin="anonymous"></script>
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-text-geometry-component/dist/aframe-text-geometry-component.min.js"></script> 
+    <script src="https://unpkg.com/aframe-animation-component@3.2.5/dist/aframe-animation-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-text-geometry-component/dist/aframe-text-geometry-component.min.js"></script>
     <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script>
     <script src="../../js/aframedc.js"></script>
- 
-    <!--<script src="js/demoOPNFV1105.js"></script>-->
+
+    <script src="js/demoOPNFV1105.js"></script>
     <title>demo with OPNFV data</title>
     <style>
         * {
@@ -28,34 +29,57 @@
                 <img id="opnfvlogo" src="../../img/opnfv.png" />
             </a-assets>
 
-
             <a-entity id="skymap" envmap="imgprefix:../../img/dawnmountain-;extension:png"></a-entity>
-            <a-entity camera look-controls wasd-controls position="0 6 4.6" rotation="3.89 -7.95 0" mouse-cursor>
+            <a-entity camera look-controls wasd-controls position="-0.41 6 9.7" rotation="3.54 0.415 0" mouse-cursor>
             </a-entity>
             <a-entity id="target" position="0 0 0"></a-entity>
-        
 
-            <a-entity position="-9 10 -15 " geometry="primitive:box;depth:3;height:20;width:12" material="color: black">
+
+            <a-entity id="totem" position="0.29 6 -15 " geometry="primitive:box;depth:3;height:20;width:12"
+                       material="color: black">
                 <a-image src="#opnfvlogo" width="6" height="6" position="0 8.6 1.6"></a-image>
                 <a-plane color="#FFF" height="17" width="11.5" position="0 1 1.55"></a-plane>
-                <a-entity position="3  0.3 1.61" text-geometry="value:GIT ANALYTICS;" material="color:black"></a-entity>
+                <a-entity position="-2.2 6.9 1.61" text-geometry="value:GIT ANALYTICS;"
+                          material="color:black"></a-entity>
+                <a-entity id="text"
+                          geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
+                          material="color:white"
+                          position="0.24 5.65 1.65"
+                          text="color: black; align: left; value: click on a bar to filter by a dimension, move around with arrows or via checkpoints; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1"
+                          animation__color="property:text.color;to:#000;from:#FF0;startEvents:mouseenter">
+
+                </a-entity>
+                <a-entity id="textSky"
+                          geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
+                          material="color:white"
+                          position="0.24 -4.14 1.65"
+                          text="color: black; align: left; value: set sky env map; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
+
+                </a-entity>
+                <a-entity id="textmountain"
+                          geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
+                          material="color:white"
+                          position="0.24 -5.43 1.65"
+                          text="color: black; align: left; value: set mountain env map; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1"
+                          ></a-entity>
+                <a-entity id="textclearindex"
+                          geometry="primitive: box; width: 11;height:1.7; depth: 0.01"
+                          material="color:white"
+                          position="0.24 -6.49 1.65"
+                          text="color: black; align: left; value: clear indexes; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
+                </a-entity>
             </a-entity>
-            <a-image   width ="10" height="10"
-                      src="#opnfvlogo"
-                      position="-14 6 20"
-                      rotation ="0 143 0"
-                      >
-            </a-image>
+
             <!-- Textured circle parallel to ground. -->
             <a-circle id="checkpointa" material="color:blue" radius="1" position="0 0.1 4.6" rotation="-90 0 0"></a-circle>
             <a-circle id="checkpointb" material="color:red" radius="1" position="-20.12 0.1 6.62" rotation="-90 0 0"></a-circle>
             <!-- adding a ground -->
-            <a-circle id="groundentity" rotation="-90 0 0" material="src: #ground;repeat: 5 5" radius="60" position="0 -1 0"></a-circle>
+            <a-circle id="groundentity" rotation="-90 0 0" material="src: #ground;repeat: 5 5" radius="60" position="0 -1 0" visible="false"></a-circle>
 
             <a-entity id="filterinfo"
-                      position="-30 6 15"  
+                      position="-30 6 15"
                       rotation ="0 130 0"
-                 
+
                       text="color: black; align: right; value: No filters; width: 18; wrapCount: 30 ">
             </a-entity>
             <!--<a-entity id="toggleground"
@@ -109,8 +133,6 @@
         }
     </style>
     <!-- End GitHub Corner. -->
-    <a href="index.html" style="position:absolute;top:30px;left:30px;z-index:2;cursor:pointer"> Return to Index </a>
-    <a href="#" id="indexclear" style="position:absolute;top:52px;left:30px;z-index:2;cursor:pointer"> clear indexes </a>
-    <a href="#" id="toggleground" style="position:absolute;top:74px;left:30px;z-index:2;cursor:pointer">Toggle ground </a>
+
 </body>
 </html>

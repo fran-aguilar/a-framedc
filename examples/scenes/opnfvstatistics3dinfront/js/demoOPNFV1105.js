@@ -394,9 +394,9 @@ window.onload = function () {
         mypiechart.dimension(dimByOrg).group(groupByOrg).color(orgsColors).radius(2.5).setTitle("contribution by company");
         mystackchartOrgs.dimension(dimbyYandQ).group(grouporgWeek).keyAccessor(keyaccessor)
             .color(orgsColors).orderFunction(orderByValue)
-            .width(15).height(15).setTitle("contribution by company by week");
-        var coordPieChart = new THREE.Vector3(-24, 5, -15);
-        var coordorgweekchart = new THREE.Vector3(-15, 0, -15);
+            .width(15).height(15).setTitle("contribution by company");
+        var coordPieChart = new THREE.Vector3(-2.65, 3.7, -12.8);
+        var coordorgweekchart = new THREE.Vector3(-7, 0, 18);
         //var coordBarChart =     new THREE.Vector3( -7, 5,   -15 );
         //var coordauthchart =    new THREE.Vector3( -7, -8,  -15 );
         //var coordtzchart =      new THREE.Vector3( 5, 5,    -15 );
@@ -404,7 +404,7 @@ window.onload = function () {
         //myDashboard.addChart(mybarchart, coordBarChart);
         //myDashboard.addChart(mybarchartTzs, coordtzchart);
         myDashboard.addChart(mystackchartOrgs, coordorgweekchart);
-
+        mystackchartOrgs.setAttribute("rotation", { x: 0, y: 180, z: 0 });
         //25 grados
 
         var mybubblechart = aframedc.bubbleChart();
@@ -445,7 +445,7 @@ window.onload = function () {
           .setTitle("contribution by company ");
         var angle = THREE.Math.degToRad(-45);
         var axis = new THREE.Vector3(0, 1, 0);
-        var coordBubblechart = new THREE.Vector3(7.5, 0, -15);
+        var coordBubblechart = new THREE.Vector3(8.151, 0, -12.9);
 
         myDashboard.addChart(mybubblechart, coordBubblechart);
         mybubblechart.setAttribute("rotation", { x: 0, y: -45, z: 0 });
@@ -497,13 +497,13 @@ window.onload = function () {
             //descending order.
           .zAxis(groupByOrg.order(function (v) { return -1 * v; }).top(Infinity))
           .color(orgsColors)
-          .width(15)
+          .width(10)
           .depth(18)
           .height(6)
           .setTitle("contribution by company ");
 
-        mybarchart3d.setAttribute("rotation", { x: 0, y: 45, z: 0 });
-        myDashboard.addChart(mybarchart3d, { x: -35, y: 0.1, z: -2.29 });
+        mybarchart3d.setAttribute("rotation", { x: 0, y: 20, z: 0 });
+        myDashboard.addChart(mybarchart3d, { x: -14.2, y: 0.7, z: -2.31 });
 
 
 
@@ -531,17 +531,39 @@ window.onload = function () {
             //clean current filters.
             currentfilters = [];
             myCurrentfilterEntity.setAttribute("text", "value", initText);
+
+            //showing filter on chart;
+            var charts = myDashboard.allCharts();
+            for (var j = 0 ; j < charts.length; j++) {
+                var text = charts[j].getAttribute(charts[j].componentName).title;
+                var ifiltertext = text.indexOf(":filter:");
+                var originalText = text.substring(0, ifiltertext !== -1 ? ifiltertext : text.length);
+                //preset original.
+                charts[j].setTitle(originalText);
+                var index;
+                if (charts[j]._dimension) {
+                    for (var f = 0 ; f < currentfilters.length; f++) {
+                        if (currentfilters[f].key !== charts[j]._dimension) {
+                            originalText += ":filter:" +
+                            dimensions.find(function (d) { return d.key === currentfilters[f].key; }).text +
+                            " " + currentfilters[f].value;
+                        }
+                    }
+
+                    charts[j].setTitle(originalText);
+                }
+            }
         };
-        $("#indexclear").on("click", clearallindex);
-        //var text = document.querySelector("#indexcleartext");
-        //text.addEventListener("click", clearallindex);
+
+        var text = document.querySelector("#textclearindex");
+        text.addEventListener("click", clearallindex);
 
         var mycheckpointB = document.querySelector("#checkpointb");
         mycheckpointB.addEventListener("click", function (ev) {
             //get the camera an set position and lookat attr.
             var camera = document.querySelector("[camera]");
-            var position = { x: -20.12, y: 6, z: 6.62 };
-            var rotation = { x: -5.39, y: 9.47, z: 0 };
+            var position = { x: -20, y: 6, z: 6.62 };
+            var rotation = { x: 4.1, y: -176, z: 0 };
             camera.setAttribute("position", position);
             camera.setAttribute("rotation", rotation);
         });
@@ -550,8 +572,8 @@ window.onload = function () {
         mycheckpointA.addEventListener("click", function (ev) {
             //get the camera an set position and lookat attr.
             var camera = document.querySelector("[camera]");
-            var position = { x: 0, y: 6, z: 4.6 };
-            var rotation = { x:3.89,y: -7.95,z: 0};
+            var position = { x: -0.41, y: 6, z: 9.7 };
+            var rotation = { x:3.54,y: 0.415,z: 0};
             camera.setAttribute("position", position);
             camera.setAttribute("rotation", rotation);
         });
@@ -608,11 +630,28 @@ window.onload = function () {
         });
         var groundentity = document.querySelector("#groundentity");
         var toggle = document.querySelector("#toggleground");
-            toggle.addEventListener("click", function (ev) {
+        toggle.addEventListener("click", function (ev) {
             var visibility = groundentity.getAttribute("visible");
             if (visibility === false) visibility = true;
             else visibility = false;
             groundentity.setAttribute("visible", visibility);
+
+        });
+
+        var textsky = document.querySelector("#textSky");
+        var map = document.querySelector("#skymap");
+        textsky.addEventListener("click", function (ev) {
+            map.setAttribute("envmap", {
+                imgprefix: "../../img/skycubemap-",
+                extension: "jpg"
+            });
+
+        });
+
+        var textmon = document.querySelector("#textmountain");
+        textmon.addEventListener("click", function (ev) {
+            map.setAttribute("envmap", { imgprefix: "../../img/dawnmountain-", extension: "png" });
+            
 
         });
     }
