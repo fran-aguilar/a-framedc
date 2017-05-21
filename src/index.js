@@ -11,6 +11,53 @@ require("./components/panel/index.js");
 require("./components/smoothcurvechart/index.js");
 require("./components/piechart/index.js");
 require("./components/title/index.js");
+//findindex polyfill
+if (!Array.prototype.findIndex) {
+    Array.prototype.findIndex = function (predicate) {
+        if (this === null) {
+            throw new TypeError('Array.prototype.findIndex called on null or undefined');
+        }
+        if (typeof predicate !== 'function') {
+            throw new TypeError('predicate must be a function');
+        }
+        var list = Object(this);
+        var length = list.length >>> 0;
+        var thisArg = arguments[1];
+        var value;
+
+        for (var i = 0; i < length; i++) {
+            value = list[i];
+            if (predicate.call(thisArg, value, i, list)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+//find polyfill
+if (!Array.prototype.find) {
+    Array.prototype.find = function (predicate) {
+        'use strict';
+        if (this == null) {
+            throw new TypeError('Array.prototype.find called on null or undefined');
+        }
+        if (typeof predicate !== 'function') {
+            throw new TypeError('predicate must be a function');
+        }
+        var list = Object(this);
+        var length = list.length >>> 0;
+        var thisArg = arguments[1];
+        var value;
+
+        for (var i = 0; i < length; i++) {
+            value = list[i];
+            if (predicate.call(thisArg, value, i, list)) {
+                return value;
+            }
+        }
+        return undefined;
+    };
+}
 function aframedc() {
     var aframedc = {
         version: '0.1.0',
@@ -176,6 +223,10 @@ function aframedc() {
             this._keyHandler = keyHandler;
             return this;
         },
+        setId: function (id) {
+            this._id = id;
+            return this;
+        }
 
     };
     aframedc.Panel = function () {
@@ -376,16 +427,13 @@ function aframedc() {
             this._colors = newcolorDict;
             return this;
         }
-        obarChart.heightAccessor = function (heightfunc) {
-            this._heightAccesor = heightfunc;
-            return this;
-        }
-        obarChart.arrayAccessor = function (arrfunc) {
-            this._arrAccesor = arrfunc;
-            return this;
-        }
+
         obarChart.zAxis = function (newcolorDict) {
             this._zAxis = newcolorDict;
+            return this;
+        }
+        obarChart.transformMethod = function (transformCall) {
+            this._transformFunc = transformCall;
             return this;
         }
         return obarChart;

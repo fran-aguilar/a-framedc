@@ -1,5 +1,6 @@
 gh-pages
 node_modules/
+examples/
 npm-debug.log
 examples/build.js
 examples/node_modules/

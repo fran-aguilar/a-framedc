@@ -51,7 +51,6 @@ AFRAME.registerComponent('barchart3d', {
         var componentData = this.data;
         if ((!eElem._data || eElem._data.length === 0) &&
            !eElem._group) return;
-        if (!eElem._zAxis) return;
         var __calculateY = function (initialY, height) {
             var returnedY = height / 2 + initialY;
             return returnedY;
@@ -62,104 +61,122 @@ AFRAME.registerComponent('barchart3d', {
         if (eElem._data && eElem._data.length > 0) {
             _data = eElem._data;
         } else if (eElem._group) {
+            //excepted to be as data directly retrieved.
+            //TODO: transform
             _data = eElem._group.all();
+            _data = eElem._transformFunc(_data, eElem._colors);
         }
+        var getKeys = function (mydata) {
+            var keysOne = [];
+            var keysTwo = [];
+            for (var i = 0; i < mydata.length; i++) {
+                if (keysOne.indexOf(mydata[i].key1) === -1) keysOne.push(mydata[i].key1);
+                if (keysTwo.indexOf(mydata[i].key2) === -1) keysTwo.push(mydata[i].key2);
 
-        BAR_WIDTH = componentData.width / _data.length;;
-        BAR_DEPTH = componentData.depth / eElem._zAxis.length;
+            };
+            return { keysOne: keysOne, keysTwo: keysTwo };
+        }
+        var dataKeys = getKeys(_data);
+        //storing keys
+        this._datakeys = dataKeys;
+        BAR_WIDTH = componentData.width / dataKeys.keysOne.length;
+        BAR_DEPTH = componentData.depth / dataKeys.keysTwo.length;
         MAX_HEIGHT = componentData.height;
-        //using value and height accessor to retrieve max's
-        var arrays = _data.map(function (p) {
-            var myp = p;
-            return eElem._arrAccesor(p).map(function (o) {
-                return eElem._heightAccesor(o, myp);
-            });
-        });
-        var MAX_VALUE = Math.max.apply(null, ([].concat.apply([], arrays)));
+
+        var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value }));
         var entityEl = document.createElement('a-entity');
         var yMaxPoint = 0;
 
         var relativeX, relativeY;
         relativeX = BAR_WIDTH / 2;
         relativeY = 0;
+        var indexOfData = 0;
+        for (var i = 0; i < dataKeys.keysOne.length; i++) {
+            var indexOfZ= 0;
+            for (var j = 0 ; j < dataKeys.keysTwo.length; j++) {
+                //skip to draw if 0
+                if (_data[indexOfData].value !== 0) {
+                    //we need to scale every item.
 
-        for (var i = 0; i < _data.length; i++) {
-            var dataValue = _data[i].value;
-            for (var j = 0 ; j < dataValue.length; j++) {
-                //we need to scale every item.
+                    var myHeight = (_data[indexOfData].value / MAX_VALUE) * MAX_HEIGHT;
+                    var myYPosition = __calculateY(relativeY, myHeight);
+                    var el = document.createElement('a-box');
+                    //TODO: optional in a future
+                    var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
 
-                var myHeight = (eElem._heightAccesor(dataValue[j], dataValue) / MAX_VALUE) * MAX_HEIGHT;
-                var myYPosition = __calculateY(relativeY, myHeight);
-                var el = document.createElement('a-box');
-                var actualColor = eElem._colors.find(function (a) { return a.key === dataValue[j].key }).value;
-                var index = eElem._zAxis.findIndex(function (a) { return a.key === dataValue[j].key });
-                //-bardepth *i - bardepth/2
-                var zpos = -(BAR_DEPTH) * (index + 0.5);
-                var elPos = { x: relativeX, y: myYPosition, z: zpos };
+                    //-bardepth *i - bardepth/2
+                    var zpos = -(BAR_DEPTH) * (indexOfZ + 0.5);
+                    var elPos = { x: relativeX, y: myYPosition, z: zpos };
 
-                el.setAttribute('width', BAR_WIDTH);
-                el.setAttribute('height', myHeight);
-                el.setAttribute('depth', BAR_DEPTH);
-                el.setAttribute('color', actualColor);
-                el.setAttribute('position', elPos);
+                    el.setAttribute('width', BAR_WIDTH);
+                    el.setAttribute('height', myHeight);
+                    el.setAttribute('depth', BAR_DEPTH);
+                    el.setAttribute('color', actualColor);
+                    el.setAttribute('position', elPos);
 
 
-                var valuePart = _data[i].value;
-                if (eElem._valueHandler)
-                    valuePart = eElem._valueHandler(dataValue[j], dataValue);
-                var keyPart = _data[i].key;
-                if (eElem._keyHandler) {
-                    keyPart = eElem._keyHandler(_data[i]);
-                }
-                //storing parts info..
-                var barPart = {
-                    name: "key:" + keyPart + " value:" + valuePart,
-                    data: {
-                        key: _data[i].key,
-                        value: _data[i].value
-                    },
-                    position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z },
-                    origin_color: actualColor
-                };
-                el._partData = barPart;
-                //getting max.
-                eElem.appendChild(el);
-                var myFunc = function (chart, element) {
-
-                    if (chart.el._dimension) {
-                        var myDim = chart.el._dimension;
-                        myDim.filterAll(null);
-                        myDim = myDim.filter(element.data.key);
-                        //llamada a redibujado de todo..
-                        var dashboard;
-                        if (chart.el._dashboard)
-                            dashboard = chart.el._dashboard;
-                        else if (chart.el._panel)
-                            dashboard = chart.el._panel._dashboard;
-
-                        if (dashboard) {
-                            //getting all charts
-                            var charts = dashboard.allCharts();
-                            for (var ch = 0 ; ch < charts.length; ch++) {
-                                if (charts[ch] !== chart.el && charts[ch]._group) {
-                                    charts[ch].emit("data-loaded");
-                                }
-                            }
-
-                        } else {
-                            var childs = chart.el.parentElement.children;
-                            for (var ch = 0 ; ch < childs.length ; ch++) {
-                                if (childs[ch] !== chart.el && childs[ch]._group) {
-                                    childs[ch].emit("data-loaded");
-                                }
-                            }
-                        }
-                        //exp.
-                        chart.el.emit("filtered", { element: element });
+                    var valuePart = _data[i].value;
+                    if (eElem._valueHandler)
+                        valuePart = eElem._valueHandler(_data[indexOfData]);
+                    var keyPart = _data[i].key1;
+                    if (eElem._keyHandler) {
+                        keyPart = eElem._keyHandler(_data[indexOfData]);
                     }
-                };
-                var myBindFunc = myFunc.bind(null, this, el._partData);
-                el.addEventListener("click", myBindFunc);
+                    //storing parts info..
+                    var barPart = {
+                        name: "key:" + keyPart + " value:" + valuePart,
+                        data: {
+                            key1: _data[i].key1,
+                            key2: _data[i].key2,
+                            value: _data[i].value
+                        },
+                        position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z },
+                        origin_color: actualColor
+                    };
+                    el._partData = barPart;
+                    //getting max.
+                    eElem.appendChild(el);
+                    var myFunc = function (chart, element) {
+
+                        if (chart.el._dimension) {
+                            var myDim = chart.el._dimension;
+                            myDim.filterAll(null);
+                            myDim = myDim.filter(element.data.key);
+                            //llamada a redibujado de todo..
+                            var dashboard;
+                            if (chart.el._dashboard)
+                                dashboard = chart.el._dashboard;
+                            else if (chart.el._panel)
+                                dashboard = chart.el._panel._dashboard;
+
+                            if (dashboard) {
+                                //getting all charts
+                                var charts = dashboard.allCharts();
+                                for (var ch = 0 ; ch < charts.length; ch++) {
+                                    if (charts[ch] !== chart.el && charts[ch]._group) {
+                                        charts[ch].emit("data-loaded");
+                                    }
+                                }
+
+                            } else {
+                                var childs = chart.el.parentElement.children;
+                                for (var ch = 0 ; ch < childs.length ; ch++) {
+                                    if (childs[ch] !== chart.el && childs[ch]._group) {
+                                        childs[ch].emit("data-loaded");
+                                    }
+                                }
+                            }
+                            //exp.
+                            chart.el.emit("filtered", { element: element });
+                        }
+                    };
+                    var myBindFunc = myFunc.bind(null, this, el._partData);
+                    el.addEventListener("click", myBindFunc);
+                }
+                //global index
+                indexOfData++;
+                //index to calculate depth
+                indexOfZ++;
             }
             relativeX += BAR_WIDTH;
 
@@ -197,7 +214,7 @@ AFRAME.registerComponent('barchart3d', {
             height: this.data.height,
             depth: this.data.depth,
             ysteps: this.data.ysteps,
-            zsteps: this.el._zAxis.length
+            zsteps: this._datakeys.keysTwo.length
         });
 
 
@@ -206,7 +223,7 @@ AFRAME.registerComponent('barchart3d', {
             width: this.data.width,
             depth: this.data.depth,
             xsteps: this.data.xsteps,
-            zsteps: this.el._zAxis.length
+            zsteps: this._datakeys.keysTwo.length
         });
         this.el.appendChild(gridEntityZY);
         this.el.appendChild(gridEntityXZ);
@@ -247,15 +264,9 @@ AFRAME.registerComponent('barchart3d', {
         } else {
             _data = this.el._group.top(Infinity);
         }
-        //using value and height accessor to retrieve max's
-        var arrays = _data.map(function (p) {
-            var myp = p;
-            return eElem._arrAccesor(p).map(function (o) {
-                return eElem._heightAccesor(o, myp);
-            });
-        });
-        topYValue = Math.max.apply(null, ([].concat.apply([], arrays)));
-        numberOfValues = _data.length;
+
+        topYValue = Math.max.apply(null, _data.map(function(d) { return d.value})  );
+        numberOfValues = this._datakeys.keysOne.length;
         //Y AXIS
         //var numerOfYLabels=Math.round(_chart._height/20);
         var stepYValue = topYValue / this.data.ysteps;
@@ -268,7 +279,6 @@ AFRAME.registerComponent('barchart3d', {
         return labels;
     },
     addZLabels: function () {
-        if (!this.el._zAxis) return;
         var getZLabel = function (component, step, labelkv) {
             var curveSeg = 3;
             var texto = document.createElement("a-entity");
@@ -276,11 +286,12 @@ AFRAME.registerComponent('barchart3d', {
             //FIXME: depende del tamaño de letra...
             var xPos = -1 * ((TEXT_WIDTH / 2) + 0.7);
             var zPos = -step;
-            var actualColor = component.el._colors.find(function (d) { return d.key === labelkv.key; }).value;
+            //todo: it must be optional
+            var actualColor = component.el._colors.find(function (d) { return d.key === labelkv; }).value;
             texto.setAttribute("text", {
                 color: actualColor,
                 side: "double",
-                value: labelkv.key,
+                value: labelkv,
                 width: TEXT_WIDTH,
                 wrapCount: 30,
                 align: "right"
@@ -292,10 +303,10 @@ AFRAME.registerComponent('barchart3d', {
             return texto;
         }
 
-        var stepZ = this.data.depth / this.el._zAxis.length;
+        var stepZ = this.data.depth / this._datakeys.keysTwo.length;
         var labels = [];
-        for (var i = 0; i < this.el._zAxis.length; i++) {
-            labels.push(getZLabel(this, i * stepZ + stepZ / 2, this.el._zAxis[i]));
+        for (var i = 0; i < this._datakeys.keysTwo.length; i++) {
+            labels.push(getZLabel(this, i * stepZ + stepZ / 2, this._datakeys.keysTwo[i]));
         };
 
         return labels;

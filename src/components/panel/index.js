@@ -59,13 +59,6 @@ AFRAME.registerComponent('panel', {
         this.components.panel.initialPositions.splice(index, 1);
         this.emit("data-loaded");
     },
-    __setPositions(childrens, positions) {
-        for (var i = 0; i < childrens.length; i++) {
-            var child = childrens[i];
-            var position = positions[i];
-            child.setAttribute("position", { x: position[0], y: position[1], z: position[2] });
-        }
-    },
     update: function (oldData) {
         if (this.reload) {
             this.reload = false;
@@ -168,7 +161,7 @@ AFRAME.registerComponent('panel', {
         this.el.removeEventListener('child-detached', this.__childdetachedCallback);
         this.el.removeEventListener('data-loaded', this.onDataLoaded.bind(this));
         //it doesn't works properly.
-        this.__setPositions(this.childrenItems, this.initialPositions);
+        //this.__setPositions(this.childrenItems, this.initialPositions);
     }
 });
 //registering panel primitive

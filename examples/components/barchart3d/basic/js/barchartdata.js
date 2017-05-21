@@ -276,27 +276,25 @@ window.onload = function () {
             var year = Number.parseInt(aux.slice(0, 4));
             var weeknumber = Number.parseInt(aux.slice(5));
             var datefromwn = getdatefromWN(year, weeknumber);
-            return datefromwn.toDateString() + " " + element.key2;
+            return datefromwn.toDateString() + element.key2;
         }
-        var transformFunction = function (orig_data,keysOfseconddim) {
-            var alldata = [];
-            var findorg = function (d) { return d.key === orgs[j].key; };
-            for (var i = 0 ; i < orig_data.length; i++) {
-                for (var j = 0; j < keysOfseconddim.length; j++) {
-                    var found = orig_data[i].value.find(findorg);
-                    if (found) {
-                        alldata.push({ key1: orig_data[i].key, key2: found.key, value: found.value });
-                    } else {
-                        alldata.push({ key1: orig_data[i].key, key2: keysOfseconddim[j].key, value: 0 });
-                    }
+        var mydata = grouporgWeek.all();
+        var alldata = [];
+        var findorg = function (d) { return d.key === orgs[j].key; };
+        for (var i = 0 ; i < mydata.length; i++) {
+            for (var j = 0; j < orgs.length; j++) {
+                var found = mydata[i].value.find(findorg);
+                if (found) {
+                    alldata.push({ key1: mydata[i].key, key2: found.key, value: found.value });
+                } else {
+                    alldata.push({ key1: mydata[i].key, key2: orgs[j].key, value: 0 });
                 }
             }
-            return alldata;
         }
+      
+
         mybarchart3d
-            .dimension(dimByWeek)
-            .group(grouporgWeek)
-            .transformMethod(transformFunction)
+            .data(alldata)
             .keyAccessor(keyaccessor)
             .color(orgsColors)
             .width(15)
