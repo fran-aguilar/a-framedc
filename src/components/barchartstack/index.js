@@ -108,79 +108,82 @@ AFRAME.registerComponent('barchartstack', {
       }
       for (var i = 0; i < dataKeys.keysOne.length; i++) {
           for (var j = 0 ; j < dataKeys.keysTwo.length; j++) {
-              //we need to scale every item.
-              var myHeight = (_data[indexOfData].value / MAX_VALUE) * MAX_HEIGHT;
+              if (_data[indexOfData].value !== 0) {
+                  //we need to scale every item.
+                  var myHeight = (_data[indexOfData].value / MAX_VALUE) * MAX_HEIGHT;
 
-              var myYPosition = __calculateY(relativeY, myHeight);
-              var el = document.createElement('a-box');
-              var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
-              var elPos = { x: relativeX, y: myYPosition, z: 0 };
+                  var myYPosition = __calculateY(relativeY, myHeight);
+                  var el = document.createElement('a-box');
+                  var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
+                  var elPos = { x: relativeX, y: myYPosition, z: 0 };
 
-              el.setAttribute('width', BAR_WIDTH);
-              el.setAttribute('height', myHeight);
-              el.setAttribute('depth', BAR_DEPTH);
-              el.setAttribute('color', actualColor);
-              el.setAttribute('position', elPos);
+                  el.setAttribute('width', BAR_WIDTH);
+                  el.setAttribute('height', myHeight);
+                  el.setAttribute('depth', BAR_DEPTH);
+                  el.setAttribute('color', actualColor);
+                  el.setAttribute('position', elPos);
 
 
-              var valuePart = _data[indexOfData].value;
-              if (eElem._valueHandler)
-                  valuePart = eElem._valueHandler(_data[indexOfData]);
-              var keyPart = _data[indexOfData].key1 + " " + _data[indexOfData].key2;
-              if (eElem._keyHandler) {
-                  keyPart = eElem._keyHandler(_data[indexOfData]);
-              }
-              //storing parts info..
-              var barPart = {
-                  name: "key:" + keyPart + " value:" + valuePart,
-                  data: {
-                      key1: _data[indexOfData].key1,
-                      key2: _data[indexOfData].key2,
-                      value: _data[indexOfData].value
-                  },
-                  position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z + relativeZ },
-                  origin_color: actualColor
-              };
-              el._partData = barPart;
-              //getting max.
-              eElem.appendChild(el);
-              var myFunc = function (chart, element) {
-
-                  if (chart.el._dimension) {
-                      var myDim = chart.el._dimension;
-                      myDim.filterAll(null);
-                      myDim = myDim.filter(element.data.key1);
-                      //llamada a redibujado de todo..
-                      var dashboard;
-                      if (chart.el._dashboard)
-                          dashboard = chart.el._dashboard;
-                      else if (chart.el._panel)
-                          dashboard = chart.el._panel._dashboard;
-
-                      if (dashboard) {
-                          //getting all charts
-                          var charts = dashboard.allCharts();
-                          for (var ch = 0 ; ch < charts.length; ch++) {
-                              if (charts[ch] !== chart.el && charts[ch]._group) {
-                                  charts[ch].emit("data-loaded");
-                              }
-                          }
-
-                      } else {
-                          var childs = chart.el.parentElement.children;
-                          for (var ch = 0 ; ch < childs.length ; ch++) {
-                              if (childs[ch] !== chart.el && childs[ch]._group) {
-                                  childs[ch].emit("data-loaded");
-                              }
-                          }
-                      }
-                      //exp.
-                      chart.el.emit("filtered", { element: element });
+                  var valuePart = _data[indexOfData].value;
+                  if (eElem._valueHandler)
+                      valuePart = eElem._valueHandler(_data[indexOfData]);
+                  var keyPart = _data[indexOfData].key1 + " " + _data[indexOfData].key2;
+                  if (eElem._keyHandler) {
+                      keyPart = eElem._keyHandler(_data[indexOfData]);
                   }
-              };
-              var myBindFunc = myFunc.bind(null, this, el._partData);
-              el.addEventListener("click", myBindFunc);
-              relativeY = relativeY + myHeight;
+                  //storing parts info..
+                  var barPart = {
+                      name: "key:" + keyPart + " value:" + valuePart,
+                      data: {
+                          key1: _data[indexOfData].key1,
+                          key2: _data[indexOfData].key2,
+                          value: _data[indexOfData].value
+                      },
+                      position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z + relativeZ },
+                      origin_color: actualColor
+                  };
+                  el._partData = barPart;
+                  //getting max.
+                  eElem.appendChild(el);
+                  var myFunc = function (chart, element) {
+
+                      if (chart.el._dimension) {
+                          var myDim = chart.el._dimension;
+                          myDim.filterAll(null);
+                          myDim = myDim.filter(element.data.key1);
+                          //llamada a redibujado de todo..
+                          var dashboard;
+                          if (chart.el._dashboard)
+                              dashboard = chart.el._dashboard;
+                          else if (chart.el._panel)
+                              dashboard = chart.el._panel._dashboard;
+
+                          if (dashboard) {
+                              //getting all charts
+                              var charts = dashboard.allCharts();
+                              for (var ch = 0 ; ch < charts.length; ch++) {
+                                  if (charts[ch] !== chart.el && charts[ch]._group) {
+                                      charts[ch].emit("data-loaded");
+                                  }
+                              }
+
+                          } else {
+                              var childs = chart.el.parentElement.children;
+                              for (var ch = 0 ; ch < childs.length ; ch++) {
+                                  if (childs[ch] !== chart.el && childs[ch]._group) {
+                                      childs[ch].emit("data-loaded");
+                                  }
+                              }
+                          }
+                          //exp.
+                          chart.el.emit("filtered", { element: element });
+                      }
+                  };
+                  var myBindFunc = myFunc.bind(null, this, el._partData);
+                  el.addEventListener("click", myBindFunc);
+                  relativeY = relativeY + myHeight;
+
+              }
               //global index
               indexOfData++;
           }

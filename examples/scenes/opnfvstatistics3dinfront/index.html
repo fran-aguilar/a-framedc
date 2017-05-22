@@ -35,7 +35,7 @@
             <a-entity id="target" position="0 0 0"></a-entity>
 
 
-            <a-entity id="totem" position="0.29 6 -15 " geometry="primitive:box;depth:3;height:20;width:12"
+            <a-entity id="totem" position="-1 6 -20.5 " geometry="primitive:box;depth:3;height:20;width:12"
                        material="color: black">
                 <a-image src="#opnfvlogo" width="6" height="6" position="0 8.6 1.6"></a-image>
                 <a-plane color="#FFF" height="17" width="11.5" position="0 1 1.55"></a-plane>
@@ -45,28 +45,29 @@
                           geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
                           material="color:white"
                           position="0.24 5.65 1.65"
-                          text="color: black; align: left; value: click on a bar to filter by a dimension, move around with arrows or via checkpoints; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1"
+                          text="color: black; align: left; value: click on pie's bar, spheres or bars to filter. Move around with keyboard arrows or clicking circles on the floor; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1"
                           animation__color="property:text.color;to:#000;from:#FF0;startEvents:mouseenter">
 
                 </a-entity>
-                <a-entity id="textSky"
-                          geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
+                <a-entity id="textchnback"
+                          geometry="primitive: box; width: 11;height:1.00; depth: 0.01"
                           material="color:white"
                           position="0.24 -4.14 1.65"
-                          text="color: black; align: left; value: set sky env map; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
+                          text="color: black; align: left; value:change background; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
 
                 </a-entity>
-                <a-entity id="textmountain"
-                          geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
+                <a-entity  id="filterinfo"
+                          geometry="primitive: box; width: 11;height:1.2; depth: 0.01"
                           material="color:white"
-                          position="0.24 -5.43 1.65"
-                          text="color: black; align: left; value: set mountain env map; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1"
-                          ></a-entity>
+                          position="0.24 -5.267 1.65"
+                          text="color: black; align: left; value: current filters are:; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
+                </a-entity> 
+                
                 <a-entity id="textclearindex"
-                          geometry="primitive: box; width: 11;height:1.7; depth: 0.01"
+                          geometry="primitive: box; width: 11;height:1.2; depth: 0.01"
                           material="color:white"
                           position="0.24 -6.49 1.65"
-                          text="color: black; align: left; value: clear indexes; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
+                          text="color: black; align: left; value: clear filters; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1">
                 </a-entity>
             </a-entity>
 
@@ -76,12 +77,7 @@
             <!-- adding a ground -->
             <a-circle id="groundentity" rotation="-90 0 0" material="src: #ground;repeat: 5 5" radius="60" position="0 -1 0" visible="false"></a-circle>
 
-            <a-entity id="filterinfo"
-                      position="-30 6 15"
-                      rotation ="0 130 0"
-
-                      text="color: black; align: right; value: No filters; width: 18; wrapCount: 30 ">
-            </a-entity>
+      
             <!--<a-entity id="toggleground"
                       position="-30 3 15"
                       rotation="0 130 0"

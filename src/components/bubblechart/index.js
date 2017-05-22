@@ -111,7 +111,7 @@ AFRAME.registerComponent('bubblechart', {
                   eElem.appendChild(el);
 
                   //events.
-                  var valuePart = element.value + " " + element.value2 ;
+                  var valuePart = element.value + " " + element.value2.toFixed(2) ;
                   if (eElem._valueHandler)
                       valuePart = eElem._valueHandler(element );
                   var keyPart = element.key1 + " " + element.key2;
@@ -127,7 +127,7 @@ AFRAME.registerComponent('bubblechart', {
                           value: element.value,
                           value2: element.value2
                       },
-                      position: { x: elPos.x, y: relativeY + MAX_HEIGHT + 0.25, z: elPos.z },
+                      position: { x: elPos.x, y:  MAX_HEIGHT + 0.25, z: elPos.z },
                       origin_color: actualColor
                   };
                   el._partData = barPart;

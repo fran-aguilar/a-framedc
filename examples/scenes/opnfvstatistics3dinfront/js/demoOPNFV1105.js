@@ -426,7 +426,7 @@ window.onload = function () {
             }))
             .width(15).height(15).setTitle("contribution by company");
 
-        var coordPieChart = new THREE.Vector3(-2.65, 3.7, -12.8);
+        var coordPieChart = new THREE.Vector3(-3.46, 3.7, -16.8);
         var coordorgweekchart = new THREE.Vector3(-7, 0, 18);
         //var coordBarChart =     new THREE.Vector3( -7, 5,   -15 );
         //var coordauthchart =    new THREE.Vector3( -7, -8,  -15 );
@@ -466,13 +466,13 @@ window.onload = function () {
             .color(groupByOrg.top(Infinity).map(function (a, index) {
                 return { key: a.key, value: COLORS[index % COLORS.length] };
             }))
-          .width(15)
-          .depth(15)
-          .height(15)
+          .width(10)
+          .depth(10)
+          .height(10)
           .setTitle("contribution by company ");
         var angle = THREE.Math.degToRad(-45);
         var axis = new THREE.Vector3(0, 1, 0);
-        var coordBubblechart = new THREE.Vector3(8.151, 0, -12.9);
+        var coordBubblechart = new THREE.Vector3(4.33, 0, -7.23);
 
         myDashboard.addChart(mybubblechart, coordBubblechart);
         mybubblechart.setAttribute("rotation", { x: 0, y: -45, z: 0 });
@@ -640,22 +640,22 @@ window.onload = function () {
             }
         });
 
-        var textsky = document.querySelector("#textSky");
+        var textchange = document.querySelector("#textchnback");
+        backgrounds = [{ imgprefix: "../../img/skycubemap-"  , extension:"jpg"},{ imgprefix: "../../img/dawnmountain-", extension: "png" }];
+        function counter()
+        {
+            var i = 0;
+            return function() 
+            {
+                return i++;
+            }
+        } 
+        var counterf = counter();
         var map = document.querySelector("#skymap");
-        textsky.addEventListener("click", function (ev) {
-            map.setAttribute("envmap", {
-                imgprefix: "../../img/skycubemap-",
-                extension: "jpg"
-            });
+        textchange.addEventListener("click", function (ev) {
+            map.setAttribute("envmap", backgrounds[counterf() % backgrounds.length]);
 
-        });
-
-        var textmon = document.querySelector("#textmountain");
-        textmon.addEventListener("click", function (ev) {
-            map.setAttribute("envmap", { imgprefix: "../../img/dawnmountain-", extension: "png" });
-            
-
-        });
+        }); 
     }
 }
 
