@@ -463,7 +463,7 @@ window.onload = function () {
           }))  
           .width(15)
           .depth(15)
-          .height(15)
+          .height(10)
           .setTitle("contribution by company ");
         var angle = THREE.Math.degToRad(-45);
         var axis = new THREE.Vector3(0, 1, 0);
