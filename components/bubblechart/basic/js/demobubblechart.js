@@ -150,45 +150,32 @@ window.onload = function () {
             return datefromwn.toDateString();
         }
 
-        //used to calculte maximum
-        var orderByValue = function (p) {
-            var suma = 0;
-            for (var i = 0 ; i < p.length ; i++) {
-                suma = p[i].value + suma;
+
+
+        var transformFunction = function (orig_data, keysOfseconddim) {
+            var alldata = [];
+            var findorg = function (d) { return d.key === keysOfseconddim[j].key; };
+            for (var i = 0 ; i < orig_data.length; i++) {
+                for (var j = 0; j < keysOfseconddim.length; j++) {
+                    var found = orig_data[i].value.authors.find(findorg);
+                    if (found) {
+                        alldata.push({ key1: orig_data[i].key, key2: found.key, value: found.value.commits, value2: found.value.commits / orig_data[i].value.totalCommits });
+                    } else {
+                        alldata.push({ key1: orig_data[i].key, key2: keysOfseconddim[j].key, value: 0, value2: 0 });
+                    }
+                }
             }
-            return suma;
+            return alldata;
         }
 
-      
 
-        //used to retrieve # commits org
-        var myheightAccessor = function (p, parent) {
-
-            return p.value.commits;
-        }
-
-        //used to retrieve # authors org
-        var myradiusAccesor = function (p, parent) {
-            return p.value.commits / parent.value.totalCommits;
-        }
-
-        var myarrayaccesor = function (parent) {
-            return parent.value.authors;
-        }
-        var valueaccesor = function (p, parent) {
-            return "org: " + p.key + " commits: " + p.value.commits + " contrib. ratio:" + (p.value.commits / parent.value.totalCommits).toFixed(2);
-        };
         mybubblechart
             .dimension(dimByWeek)
             .group(grouporgWeek)
-            .keyAccessor(keyaccessor)
-            .valueAccessor(valueaccesor)
-            .heightAccessor(myheightAccessor)
-            .radiusAccessor(myradiusAccesor)
-            .arrayAccessor(myarrayaccesor)
-            .zAxis(groupByOrg.top(10).map(function (a, index) {
+            .transformMethod(transformFunction)
+            .color(groupByOrg.top(Infinity).map(function (a, index) {
                 return { key: a.key, value: COLORS[index % COLORS.length] };
-            })) //top 10 companies.
+            })) 
             .width(10)
             .depth(7)
             .height(6)

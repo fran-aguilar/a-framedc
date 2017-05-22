@@ -204,8 +204,7 @@ window.onload = function () {
               totalCommits: 0,
 
           };
-      });
-        console.log(JSON.stringify(grouporgBubbles.all()));
+      }); 
         console.log("new grouping");
         console.log(grouporgWeekwithAuthors.all());
         ////create a dimension by org
@@ -384,6 +383,31 @@ window.onload = function () {
 
 
 
+        var keyaccessorTD = function (element) {
+
+            var aux = element.key1.toString();
+            var year = aux.slice(0, 4);
+            var tnumber = aux.slice(-1);
+            return year + " Q" + tnumber + " org:" + element.key2;
+        }
+
+        var transformFunctionTDbar = function (orig_data, keysOfseconddim) {
+            var alldata = [];
+            var findorg = function (d) { return d.key === orgs[j].key; };
+            for (var i = 0 ; i < orig_data.length; i++) {
+                for (var j = 0; j < keysOfseconddim.length; j++) {
+                    var found = orig_data[i].value.find(findorg);
+                    if (found) {
+                        alldata.push({ key1: orig_data[i].key, key2: found.key, value: found.value });
+                    } else {
+                        alldata.push({ key1: orig_data[i].key, key2: keysOfseconddim[j].key, value: 0 });
+                    }
+                }
+            }
+            return alldata;
+        }
+
+
 
 
         mybarchartTzs.dimension(dimbytz).group(groupbytz).color("orange").width(10).setTitle("commits by Time Zone");
@@ -392,9 +416,16 @@ window.onload = function () {
         //front
 
         mypiechart.dimension(dimByOrg).group(groupByOrg).color(orgsColors).radius(2.5).setTitle("contribution by company");
-        mystackchartOrgs.dimension(dimbyYandQ).group(grouporgWeek).keyAccessor(keyaccessor)
-            .color(orgsColors).orderFunction(orderByValue)
+
+        mystackchartOrgs.dimension(dimbyYandQ)
+            .group(grouporgWeek)
+            .keyAccessor(keyaccessorTD)
+            .transformMethod(transformFunctionTDbar)
+            .color(groupByOrg.top(Infinity).map(function (a, index) {
+                return { key: a.key, value: COLORS[index % COLORS.length] };
+            }))
             .width(15).height(15).setTitle("contribution by company");
+
         var coordPieChart = new THREE.Vector3(-2.65, 3.7, -12.8);
         var coordorgweekchart = new THREE.Vector3(-7, 0, 18);
         //var coordBarChart =     new THREE.Vector3( -7, 5,   -15 );
@@ -410,37 +441,33 @@ window.onload = function () {
         var mybubblechart = aframedc.bubbleChart();
 
 
-        //used to retrieve # commits org
-        var myheightAccessor = function (p, parent) {
-
-            return p.value.commits;
+        var transformFunctionBubble = function (orig_data, keysOfseconddim) {
+            var alldata = [];
+            var findorg = function (d) { return d.key === keysOfseconddim[j].key; };
+            for (var i = 0 ; i < orig_data.length; i++) {
+                for (var j = 0; j < keysOfseconddim.length; j++) {
+                    var found = orig_data[i].value.authors.find(findorg);
+                    if (found) {
+                        alldata.push({ key1: orig_data[i].key, key2: found.key, value: found.value.commits, value2: found.value.commits / orig_data[i].value.totalCommits });
+                    } else {
+                        alldata.push({ key1: orig_data[i].key, key2: keysOfseconddim[j].key, value: 0, value2: 0 });
+                    }
+                }
+            }
+            return alldata;
         }
 
-        //used to retrieve # authors org
-        var myradiusAccesor = function (p, parent) {
-            return p.value.commits / parent.value.totalCommits;
-        }
-
-        var myarrayaccesor = function (parent) {
-            return parent.value.authors;
-        }
-        var valueaccesor = function (p, parent) {
-            return "org: " + p.key + " commits: " + p.value.commits + " contrib. ratio:" + (p.value.commits / parent.value.totalCommits).toFixed(2);
-        };
 
         mybubblechart
           .dimension(dimbyYandQ)
-          .group(grouporgBubbles)
-          .keyAccessor(keyaccessor)
-          .valueAccessor(valueaccesor)
-          .heightAccessor(myheightAccessor)
-          .radiusAccessor(myradiusAccesor)
-          .arrayAccessor(myarrayaccesor)
-          .zAxis(groupByOrg.top(15).map(function (a, index) {
-              return { key: a.key, value: COLORS[index % COLORS.length] };
-          })) //top 15 companies.
+          .group(grouporgBubbles) 
+          .transformMethod(transformFunctionBubble)
+          .keyAccessor(keyaccessorTD)
+            .color(groupByOrg.top(Infinity).map(function (a, index) {
+                return { key: a.key, value: COLORS[index % COLORS.length] };
+            }))
           .width(15)
-          .depth(10)
+          .depth(15)
           .height(15)
           .setTitle("contribution by company ");
         var angle = THREE.Math.degToRad(-45);
@@ -466,22 +493,20 @@ window.onload = function () {
         //-left, angle 45
 
         var mybarchart3d = aframedc.barChart3d();
-        //used to retrieve # commits org
-        var myheightbarchart3d = function (p, parent) {
 
-            return p.value;
-        }
-        var myarraybarchart3d = function (parent) {
-            return parent.value;
-        }
-        var valueaccesorbarchart3d = function (p, parent) {
-            return "org: " + p.key + " commits: " + p.value;
-        };
         angle = Math.PI;
         mybarchart.dimension(dimbyYandQ).group(groupbyYandQ).keyAccessor(keyaccessor).width(15).setTitle("commits on time");
         mybarchart.setAttribute("rotation", { x: 0, y: -180, z: 0 });
 
-
+        console.log(
+            JSON.stringify(
+                transformFunctionTDbar(grouporgWeek.all()
+                    , groupByOrg.top(Infinity).map(function (a, index) {
+                        return { key: a.key, value: COLORS[index % COLORS.length] };
+                    })
+                )
+            )
+        );
 
         myDashboard.addChart(mybarchart, { x: 10, y: 0, z: 18 });
 
@@ -490,13 +515,11 @@ window.onload = function () {
         mybarchart3d
           .dimension(dimbyYandQ)
           .group(grouporgWeek)
-          .arrayAccessor(myarraybarchart3d)
-          .keyAccessor(keyaccessor)
-          .valueAccessor(valueaccesorbarchart3d)
-          .heightAccessor(myheightbarchart3d)
-            //descending order.
-          .zAxis(groupByOrg.order(function (v) { return -1 * v; }).top(Infinity))
-          .color(orgsColors)
+          .transformMethod(transformFunctionTDbar)
+          .keyAccessor(keyaccessorTD)
+          .color(groupByOrg.top(Infinity).map(function (a, index) {
+              return { key: a.key, value: COLORS[index % COLORS.length] };
+          }))
           .width(10)
           .depth(18)
           .height(6)
@@ -505,19 +528,7 @@ window.onload = function () {
         mybarchart3d.setAttribute("rotation", { x: 0, y: 20, z: 0 });
         myDashboard.addChart(mybarchart3d, { x: -14.2, y: 0.7, z: -2.31 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+         
 
         //clear all dimensions button..
         var clearallindex = function (ev) {
@@ -628,15 +639,6 @@ window.onload = function () {
                 }
             }
         });
-        //var groundentity = document.querySelector("#groundentity");
-        //var toggle = document.querySelector("#toggleground");
-        //toggle.addEventListener("click", function (ev) {
-        //    var visibility = groundentity.getAttribute("visible");
-        //    if (visibility === false) visibility = true;
-        //    else visibility = false;
-        //    groundentity.setAttribute("visible", visibility);
-
-        //});
 
         var textsky = document.querySelector("#textSky");
         var map = document.querySelector("#skymap");
