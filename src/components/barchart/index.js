@@ -4,12 +4,12 @@ var utils = require("../../basefunctions.js")
 /* global AFRAME */
 
 if (typeof AFRAME === 'undefined') {
-  throw new Error('Component attempted to register before AFRAME was available.');
+    throw new Error('Component attempted to register before AFRAME was available.');
 }
 
 /**
  * Barchart component for A-Frame.
- */     
+ */
 AFRAME.registerComponent('barchart', {
     schema: {
         gridson: { default: true },
@@ -19,7 +19,8 @@ AFRAME.registerComponent('barchart', {
         height: { default: 10 },
         depth: { default: 0.5 },
         color: { default: '#00FF00' },
-        title: {default: ""}
+        title: { default: "" },
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
     onDataLoaded: utils.onDataLoaded,
     init: utils.default_init,
@@ -83,7 +84,7 @@ AFRAME.registerComponent('barchart', {
             relativeX += BAR_WIDTH;
 
             var valuePart = _data[i].value;
-            if(eElem._valueHandler)
+            if (eElem._valueHandler)
                 valuePart = eElem._valueHandler(_data[i]);
             var keyPart = _data[i].key;
             if (eElem._keyHandler) {
@@ -164,19 +165,19 @@ AFRAME.registerComponent('barchart', {
     },
     addTitle: utils.addTitle,
     addEvents: utils.addEvents,
-    addYLabels : function () {
+    addYLabels: function () {
         var numberOfValues;
         var topYValue;
-        var getYLabel = function(component, step, value) {
+        var getYLabel = function (component, step, value) {
 
             var txt = value;
             var curveSeg = 3;
             var texto = document.createElement("a-entity");
             TEXT_WIDTH = 6;
             //FIXME: depende del tamaño de letra...
-            var xPos =     -0.7;
+            var xPos = -0.7;
             //var yPos = BasicChart._coords.y + step +  0.36778332145402703 / 2;
-            var yPos =   step;
+            var yPos = step;
             texto.setAttribute("text", {
                 color: "#000000",
                 side: "double",
@@ -188,9 +189,9 @@ AFRAME.registerComponent('barchart', {
             //texto.setAttribute('geometry', { primitive: 'plane', width: 'auto', height: 'auto' });
             // Positions the text and adds it to the THREEDC.scene
             var labelpos = { x: xPos, y: yPos, z: -component.data.depth / 2 };
-            texto.setAttribute('position', labelpos); 
+            texto.setAttribute('position', labelpos);
             return texto;
-        } 
+        }
         var _data;
         var eElem = this.el;
         if (this.el._data) {
@@ -208,13 +209,13 @@ AFRAME.registerComponent('barchart', {
         numberOfValues = dataValues.length;
         //Y AXIS
         //var numerOfYLabels=Math.round(_chart._height/20);
-        var stepYValue= topYValue/this.data.ysteps;
-        var stepY=this.data.height/this.data.ysteps;
+        var stepYValue = topYValue / this.data.ysteps;
+        var stepY = this.data.height / this.data.ysteps;
         var labels = [];
-        for (var i = 0; i <this.data.ysteps +1; i++) {
+        for (var i = 0; i < this.data.ysteps + 1; i++) {
             labels.push(getYLabel(this, i * stepY, i * stepYValue));
         };
-        
+
         return labels;
     },
     remove: function () {

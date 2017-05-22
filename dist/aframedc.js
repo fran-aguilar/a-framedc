@@ -275,12 +275,37 @@ AFRAME.registerComponent('aframe-grid', {
     };
 
     var default_update = function (oldData) {
-        if ((this.el._data && this.el._data.length > 0) || this.el._group) {
+        if ((this.el._data && this.el._data.length > 0) || this.el._group || this.data.src) {
+            //we set data if not fullfilled
+            if (!(this.el._data && this.el._data.length > 0) && !this.el._group) {
+                var that = this;
+                if (that.data.src) {
+                    //taking from json data.
+                    if (that.data.src.constructor === String) {
+                        $.getJSON(that.data.src, function (response) {
+                            that.el._data = response;
+                            that.initChart();
+                            that.reload = false;
+                            that.el.setAttribute('visible', true);
+                        });
+                    } else if (thata.data.src.constructor === Object) {
+                        // Set font if already have a typeface.json through setAttribute.
+                        that.el._data = data.src;
+                        that.initChart();
+                        that.reload = false;
+                        that.el.setAttribute('visible', true);
+                    }
+                }
+            }
+
             if (this.reload) {
+                var data = this.data;
                 //rebuild the chart.
                 while (this.el.firstChild) {
                     this.el.firstChild.parentNode.removeChild(this.el.firstChild);
                 }
+
+
                 //this.el.innerHTML = "";
                 this.initChart();
                 this.reload = false;
@@ -369,12 +394,142 @@ AFRAME.registerComponent('aframe-grid', {
         titleEntity.setAttribute("position", { x: this.data.width / 2, y: this.data.height + 1, z: 0 });
         this.el.appendChild(titleEntity);
     };
+    var COLORS = ["#33cc33",
+"#00ffcc",
+"#ffff00",
+"#3399ff",
+"#ff3300",
+"#ffccff",
+"#3399ff",
+"#996633",
+"#336600",
+"#ff00ff",
+"#000099",
+"#008B8B",
+"#B8860B",
+"#A9A9A9",
+"#006400",
+"#BDB76B",
+"#8B008B",
+"#556B2F",
+"#FF8C00",
+"#9932CC",
+"#8B0000",
+"#E9967A",
+"#8FBC8F",
+"#483D8B",
+"#2F4F4F",
+"#00CED1",
+"#9400D3",
+"#FF1493",
+"#00BFFF",
+"#696969",
+"#1E90FF",
+"#B22222",
+"#FFFAF0",
+"#228B22",
+"#FF00FF",
+"#DCDCDC",
+"#F8F8FF",
+"#FFD700",
+"#DAA520",
+"#808080",
+"#008000",
+"#ADFF2F",
+"#F0FFF0",
+"#FF69B4",
+"#CD5C5C",
+"#4B0082",
+"#FFFFF0",
+"#F0E68C",
+"#E6E6FA",
+"#FFF0F5",
+"#7CFC00",
+"#FFFACD",
+"#ADD8E6",
+"#F08080",
+"#E0FFFF",
+"#FAFAD2",
+"#D3D3D3",
+"#90EE90",
+"#FFB6C1",
+"#FFA07A",
+"#20B2AA",
+"#87CEFA",
+"#778899",
+"#B0C4DE",
+"#FFFFE0",
+"#00FF00",
+"#32CD32",
+"#FAF0E6",
+"#800000",
+"#66CDAA",
+"#0000CD",
+"#BA55D3",
+"#9370DB",
+"#3CB371",
+"#7B68EE",
+"#00FA9A",
+"#48D1CC",
+"#C71585",
+"#191970",
+"#F5FFFA",
+"#FFE4E1",
+"#FFE4B5",
+"#FFDEAD",
+"#000080",
+"#FDF5E6",
+"#808000",
+"#6B8E23",
+"#FFA500",
+"#FF4500",
+"#DA70D6",
+"#EEE8AA",
+"#98FB98",
+"#AFEEEE",
+"#DB7093",
+"#FFEFD5",
+"#FFDAB9",
+"#CD853F",
+"#FFC0CB",
+"#DDA0DD",
+"#B0E0E6",
+"#800080",
+"#663399",
+"#FF0000",
+"#BC8F8F",
+"#4169E1",
+"#8B4513",
+"#FA8072",
+"#F4A460",
+"#2E8B57",
+"#FFF5EE",
+"#A0522D",
+"#C0C0C0",
+"#87CEEB",
+"#6A5ACD",
+"#708090",
+"#FFFAFA",
+"#00FF7F",
+"#4682B4",
+"#D2B48C",
+"#008080",
+"#D8BFD8",
+"#FF6347",
+"#40E0D0",
+"#EE82EE",
+"#F5DEB3",
+"#FFFFFF",
+"#F5F5F5",
+"#FFFF00",
+"#9ACD32"];
     return {
         onDataLoaded: onDataLoaded,
         default_init: default_init,
         default_update: default_update,
         addEvents: addEvents,
-        addTitle: addTitle
+        addTitle: addTitle,
+        colors: COLORS
     };
 };
 
@@ -574,9 +729,10 @@ AFRAME.registerComponent('barchart3d', {
         zsteps: { default: 5 },
         width: { default: 10 },
         height: { default: 10 },
-        depth: { default: 0.5 },
+        depth: { default: 10 },
         color: { default: '#00FF00' },
-        title: { default: "" }
+        title: { default: "" },
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
     onDataLoaded: utils.onDataLoaded,
 
@@ -617,10 +773,11 @@ AFRAME.registerComponent('barchart3d', {
             _data = eElem._data;
         } else if (eElem._group) {
             //excepted to be as data directly retrieved.
-            //TODO: transform
             _data = eElem._group.all();
             _data = eElem._transformFunc(_data, eElem._colors);
         }
+
+
         var getKeys = function (mydata) {
             var keysOne = [];
             var keysTwo = [];
@@ -639,6 +796,7 @@ AFRAME.registerComponent('barchart3d', {
         MAX_HEIGHT = componentData.height;
 
         var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value }));
+        this.max_value = MAX_VALUE;
         var entityEl = document.createElement('a-entity');
         var yMaxPoint = 0;
 
@@ -646,6 +804,14 @@ AFRAME.registerComponent('barchart3d', {
         relativeX = BAR_WIDTH / 2;
         relativeY = 0;
         var indexOfData = 0;
+
+        //we define default colors if not defined.
+        if (!this.el._colors) {
+            this.el._colors = [];
+            for (var c = 0; c < dataKeys.keysTwo.length; c++) {
+                this.el._colors.push({ key: dataKeys.keysTwo[c],value: utils.colors[c % utils.colors.length]})
+            }
+        }
         for (var i = 0; i < dataKeys.keysOne.length; i++) {
             var indexOfZ= 0;
             for (var j = 0 ; j < dataKeys.keysTwo.length; j++) {
@@ -670,10 +836,10 @@ AFRAME.registerComponent('barchart3d', {
                     el.setAttribute('position', elPos);
 
 
-                    var valuePart = _data[i].value;
+                    var valuePart = _data[indexOfData].value ;
                     if (eElem._valueHandler)
                         valuePart = eElem._valueHandler(_data[indexOfData]);
-                    var keyPart = _data[i].key1;
+                    var keyPart = _data[indexOfData].key1 + " " +_data[indexOfData].key2;
                     if (eElem._keyHandler) {
                         keyPart = eElem._keyHandler(_data[indexOfData]);
                     }
@@ -696,7 +862,7 @@ AFRAME.registerComponent('barchart3d', {
                         if (chart.el._dimension) {
                             var myDim = chart.el._dimension;
                             myDim.filterAll(null);
-                            myDim = myDim.filter(element.data.key);
+                            myDim = myDim.filter(element.data.key1);
                             //llamada a redibujado de todo..
                             var dashboard;
                             if (chart.el._dashboard)
@@ -812,15 +978,8 @@ AFRAME.registerComponent('barchart3d', {
             texto.setAttribute('position', labelpos);
             return texto;
         }
-        var _data;
-        var eElem = this.el;
-        if (this.el._data) {
-            _data = this.el._data;
-        } else {
-            _data = this.el._group.top(Infinity);
-        }
 
-        topYValue = Math.max.apply(null, _data.map(function(d) { return d.value})  );
+        topYValue = this.max_value;
         numberOfValues = this._datakeys.keysOne.length;
         //Y AXIS
         //var numerOfYLabels=Math.round(_chart._height/20);
@@ -904,12 +1063,12 @@ var utils = __webpack_require__(2)
 /* global AFRAME */
 
 if (typeof AFRAME === 'undefined') {
-  throw new Error('Component attempted to register before AFRAME was available.');
+    throw new Error('Component attempted to register before AFRAME was available.');
 }
 
 /**
  * Barchart component for A-Frame.
- */     
+ */
 AFRAME.registerComponent('barchart', {
     schema: {
         gridson: { default: true },
@@ -919,7 +1078,8 @@ AFRAME.registerComponent('barchart', {
         height: { default: 10 },
         depth: { default: 0.5 },
         color: { default: '#00FF00' },
-        title: {default: ""}
+        title: { default: "" },
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
     onDataLoaded: utils.onDataLoaded,
     init: utils.default_init,
@@ -983,7 +1143,7 @@ AFRAME.registerComponent('barchart', {
             relativeX += BAR_WIDTH;
 
             var valuePart = _data[i].value;
-            if(eElem._valueHandler)
+            if (eElem._valueHandler)
                 valuePart = eElem._valueHandler(_data[i]);
             var keyPart = _data[i].key;
             if (eElem._keyHandler) {
@@ -1064,19 +1224,19 @@ AFRAME.registerComponent('barchart', {
     },
     addTitle: utils.addTitle,
     addEvents: utils.addEvents,
-    addYLabels : function () {
+    addYLabels: function () {
         var numberOfValues;
         var topYValue;
-        var getYLabel = function(component, step, value) {
+        var getYLabel = function (component, step, value) {
 
             var txt = value;
             var curveSeg = 3;
             var texto = document.createElement("a-entity");
             TEXT_WIDTH = 6;
             //FIXME: depende del tamaño de letra...
-            var xPos =     -0.7;
+            var xPos = -0.7;
             //var yPos = BasicChart._coords.y + step +  0.36778332145402703 / 2;
-            var yPos =   step;
+            var yPos = step;
             texto.setAttribute("text", {
                 color: "#000000",
                 side: "double",
@@ -1088,9 +1248,9 @@ AFRAME.registerComponent('barchart', {
             //texto.setAttribute('geometry', { primitive: 'plane', width: 'auto', height: 'auto' });
             // Positions the text and adds it to the THREEDC.scene
             var labelpos = { x: xPos, y: yPos, z: -component.data.depth / 2 };
-            texto.setAttribute('position', labelpos); 
+            texto.setAttribute('position', labelpos);
             return texto;
-        } 
+        }
         var _data;
         var eElem = this.el;
         if (this.el._data) {
@@ -1108,13 +1268,13 @@ AFRAME.registerComponent('barchart', {
         numberOfValues = dataValues.length;
         //Y AXIS
         //var numerOfYLabels=Math.round(_chart._height/20);
-        var stepYValue= topYValue/this.data.ysteps;
-        var stepY=this.data.height/this.data.ysteps;
+        var stepYValue = topYValue / this.data.ysteps;
+        var stepY = this.data.height / this.data.ysteps;
         var labels = [];
-        for (var i = 0; i <this.data.ysteps +1; i++) {
+        for (var i = 0; i < this.data.ysteps + 1; i++) {
             labels.push(getYLabel(this, i * stepY, i * stepYValue));
         };
-        
+
         return labels;
     },
     remove: function () {
@@ -1151,7 +1311,9 @@ AFRAME.registerComponent('barchartstack', {
         height: { default: 10 },
         depth: { default: 0.5 },
         color: { default: '#00FF00' },
-        title: { default: "" }
+
+        title: { default: "" },
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
 
   /**
@@ -1181,18 +1343,47 @@ AFRAME.registerComponent('barchartstack', {
           return returnedY;
       };
 
-
       var _data;
       if (eElem._data && eElem._data.length > 0) {
           _data = eElem._data;
       } else if (eElem._group) {
+          //excepted to be as data directly retrieved.
           _data = eElem._group.all();
+          _data = eElem._transformFunc(_data, eElem._colors);
       }
 
-      BAR_WIDTH = componentData.width / _data.length;;
-      BAR_DEPTH = componentData.depth;
+
+      var getKeys = function (mydata) {
+          var keysOne = [];
+          var keysTwo = [];
+          for (var i = 0; i < mydata.length; i++) {
+              if (keysOne.indexOf(mydata[i].key1) === -1) keysOne.push(mydata[i].key1);
+              if (keysTwo.indexOf(mydata[i].key2) === -1) keysTwo.push(mydata[i].key2);
+
+          };
+          return { keysOne: keysOne, keysTwo: keysTwo };
+      }
+      var dataKeys = getKeys(_data);
+      //storing keys
+      this._datakeys = dataKeys;
+      BAR_WIDTH = componentData.width / dataKeys.keysOne.length;
+      BAR_DEPTH = componentData.depth  ;
       MAX_HEIGHT = componentData.height;
-      MAX_VALUE = eElem._maxfunc(eElem._group.order(eElem._maxfunc).top(1)[0].value);
+      //getting max value of y is the max summatory
+      var MAX_VALUE = 0;
+      var ixdata = 0;
+      var aux_sum = 0;
+      for (var m = 0 ; m < dataKeys.keysOne.length; m++) {
+          for (var n = 0 ; n < dataKeys.keysTwo.length; n++) {
+              aux_sum += _data[ixdata].value;
+              ixdata++;
+          }
+          if (MAX_VALUE < aux_sum) MAX_VALUE = aux_sum;
+          aux_sum = 0;
+      };
+
+      //var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value }));
+      this.max_value = MAX_VALUE;
       var entityEl = document.createElement('a-entity');
       var yMaxPoint = 0;
 
@@ -1200,26 +1391,22 @@ AFRAME.registerComponent('barchartstack', {
       relativeX = BAR_WIDTH / 2;
       relativeY = 0;
       relativeZ = componentData.depth / 2;
-
-      for (var i = 0; i < _data.length; i++) {
-          var sortedValues = _data[i].value.slice();
-          sortedValues.sort(function (a, b) {
-              if (a.value < b.value) {
-                  return 1;
-              }
-              if (a.value > b.value) {
-                  return -1;
-              }
-              // a must be equal to b
-              return 0;
-          });
-          for (var j = 0 ; j < sortedValues.length; j++) {
+      var indexOfData = 0;
+      //we define default colors if not defined.
+      if (!this.el._colors) {
+          this.el._colors = [];
+          for (var c = 0; c < dataKeys.keysTwo.length; c++) {
+              this.el._colors.push({ key: dataKeys.keysTwo[c], value: utils.colors[c % utils.colors.length] })
+          }
+      }
+      for (var i = 0; i < dataKeys.keysOne.length; i++) {
+          for (var j = 0 ; j < dataKeys.keysTwo.length; j++) {
               //we need to scale every item.
-              var myHeight = (sortedValues[j].value / MAX_VALUE) * MAX_HEIGHT;
+              var myHeight = (_data[indexOfData].value / MAX_VALUE) * MAX_HEIGHT;
 
               var myYPosition = __calculateY(relativeY, myHeight);
               var el = document.createElement('a-box');
-              var actualColor = eElem._colors.find(function (a) { return a.key === sortedValues[j].key }).value;
+              var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
               var elPos = { x: relativeX, y: myYPosition, z: 0 };
 
               el.setAttribute('width', BAR_WIDTH);
@@ -1229,19 +1416,20 @@ AFRAME.registerComponent('barchartstack', {
               el.setAttribute('position', elPos);
 
 
-              var valuePart = _data[i].value;
+              var valuePart = _data[indexOfData].value;
               if (eElem._valueHandler)
-                  valuePart = eElem._valueHandler(_data[i]);
-              var keyPart = _data[i].key;
+                  valuePart = eElem._valueHandler(_data[indexOfData]);
+              var keyPart = _data[indexOfData].key1 + " " + _data[indexOfData].key2;
               if (eElem._keyHandler) {
-                  keyPart = eElem._keyHandler(_data[i]);
+                  keyPart = eElem._keyHandler(_data[indexOfData]);
               }
               //storing parts info..
               var barPart = {
-                  name: "key:" + keyPart + " org:" + sortedValues[j].key + " value: " + sortedValues[j].value,
+                  name: "key:" + keyPart + " value:" + valuePart,
                   data: {
-                      key: _data[i].key,
-                      value: valuePart
+                      key1: _data[i].key1,
+                      key2: _data[i].key2,
+                      value: _data[i].value
                   },
                   position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z + relativeZ },
                   origin_color: actualColor
@@ -1286,6 +1474,8 @@ AFRAME.registerComponent('barchartstack', {
               var myBindFunc = myFunc.bind(null, this, el._partData);
               el.addEventListener("click", myBindFunc);
               relativeY = relativeY + myHeight;
+              //global index
+              indexOfData++;
           }
           relativeY = 0;
           relativeX += BAR_WIDTH;
@@ -1346,16 +1536,9 @@ AFRAME.registerComponent('barchartstack', {
           texto.setAttribute('position', labelpos);
           return texto;
       }
-      var _data;
-      var eElem = this.el;
-      if (this.el._data) {
-          _data = this.el._data;
-      } else {
-          _data = this.el._group.top(Infinity);
-      }
 
-      topYValue = eElem._maxfunc(eElem._group.order(eElem._maxfunc).top(1)[0].value);
-      numberOfValues = _data.length;
+      topYValue = this.max_value;
+      numberOfValues = this._datakeys.keysOne.length;
       //Y AXIS
       //var numerOfYLabels=Math.round(_chart._height/20);
       var stepYValue = topYValue / this.data.ysteps;
@@ -1370,11 +1553,11 @@ AFRAME.registerComponent('barchartstack', {
   addleyenda: function () {
       var leyendaEntity = document.createElement("a-entity");
       leyendaEntity.id = "barchart3dleyend";
-      var topValue= this.el._group.top(1)[0];
+      var topValue= this.el._colors;
       var xPos = this.data.width +0.25 +1;
       var ystep = this.data.height -0.25;
-      for (var i = 0; i < topValue.value.length; i++) {
-          var actualColor = this.el._colors.find(function (a) { return a.key === topValue.value[i].key }).value;
+      for (var i = 0; i < Math.min(topValue.length,10); i++) {
+          var actualColor =  topValue[i].value;
           var colorbox = document.createElement("a-box");
           colorbox.setAttribute("color", actualColor);
           colorbox.setAttribute("width", 0.5);
@@ -1384,7 +1567,7 @@ AFRAME.registerComponent('barchartstack', {
           var curveSeg = 3;
           var texto = document.createElement("a-entity");
           TEXT_WIDTH = 6;
-          var txt = topValue.value[i].key;
+          var txt = topValue[i].key;
           texto.setAttribute("text", {
               color: "#000000",
               side: "double",
@@ -1485,89 +1668,87 @@ AFRAME.registerComponent('bubblechart', {
       var componentData = this.data;
       if ((!eElem._data || eElem._data.length === 0) &&
          !eElem._group) return;
-      //var __calculateY = function (initialY, height) {
-      //    var returnedY = height / 2 + initialY;
-      //    return returnedY;
-      //};
+
 
 
       var _data;
       if (eElem._data && eElem._data.length > 0) {
           _data = eElem._data;
       } else if (eElem._group) {
+          //excepted to be as data directly retrieved.
+          //TODO: transform
           _data = eElem._group.all();
+          _data = eElem._transformFunc(_data, eElem._colors);
       }
+      var getKeys = function (mydata) {
+          var keysOne = [];
+          var keysTwo = [];
+          for (var i = 0; i < mydata.length; i++) {
+              if (keysOne.indexOf(mydata[i].key1) === -1) keysOne.push(mydata[i].key1);
+              if (keysTwo.indexOf(mydata[i].key2) === -1) keysTwo.push(mydata[i].key2);
+
+          };
+          return { keysOne: keysOne, keysTwo: keysTwo };
+      }
+      var dataKeys = getKeys(_data);
+      //storing keys
+      this._datakeys = dataKeys;
       var relativeX, relativeY, relativeZ;
         
         
-      var BAR_DEPTH = componentData.depth;
+      
       var MAX_HEIGHT = componentData.height;
-      //using value and height accessor to retrieve max's
-      var arrays = _data.map(function (p) {
-          var myp = p;
-          return eElem._arrAccesor(p).map(function (o) {
-              return eElem._heightAccesor(o, myp);
-          });
-      });
-      var MAX_VALUE = Math.max.apply(null, ([].concat.apply([], arrays)));
-      arrays = _data.map(function (p) {
-          var myp = p;
-          return eElem._arrAccesor(p).map(function (o) {
-              return eElem._radiusAccesor(o, myp);
-          });
-      });
-      var MAX_RADIUS_VALUE = Math.max.apply(null, ([].concat.apply([], arrays)));
-      var zAxis = eElem._zAxis;
-      if (!zAxis) {
-          //calculate axis data.
-          //TODO:
-      }
-      var MAX_RADIUS = Math.min(componentData.width,componentData.height ,componentData.depth)  / Math.min(_data.length, zAxis.length);
-      var zStep = (componentData.depth) / zAxis.length;
-      var xStep = (componentData.width )/ _data.length;
+
+      var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value; }));
+      this.max_value = MAX_VALUE;
+      var MAX_RADIUS_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value2; }));
+      var MAX_RADIUS = Math.min(componentData.width, componentData.height, componentData.depth) / Math.min(dataKeys.keysOne.length, dataKeys.keysTwo.length);
+      var zStep = (componentData.depth) / dataKeys.keysTwo.length;
+      var xStep = (componentData.width) / dataKeys.keysOne.length;
       relativeX = 0 ;
       relativeY = MAX_RADIUS;
-      relativeZ = -MAX_RADIUS/2  ;
-      for (var i = 0; i < _data.length; i++) {
-          for (var j = 0; j < zAxis.length; j++) {
-              var Axiskey = zAxis[j];
-              var datavalue = _data[i];
-              var findkey = function (k) {
-                  if (!k.key) return;
-                  return k.key === Axiskey.key;
-              }
-              var element = eElem._arrAccesor(datavalue).find(findkey);
-              if (element) {
+      relativeZ = -MAX_RADIUS / 2;
+      //we define default colors if not defined.
+      if (!this.el._colors) {
+          this.el._colors = [];
+          for (var c = 0; c < dataKeys.keysTwo.length; c++) {
+              this.el._colors.push({ key: dataKeys.keysTwo[c], value: utils.colors[c % utils.colors.length] })
+          }
+      }
+      var indexOfData = 0;
+      for (var i = 0; i < dataKeys.keysOne.length; i++) {
+          for (var j = 0; j < dataKeys.keysTwo.length; j++) {
+              var element = _data[indexOfData];
+              if (element.value !== 0 || element.value2 !== 0) {
                   //drawing element.
                   //we need to scale every item. be careful with this.
-                  var ypos = (eElem._heightAccesor(element,datavalue) / MAX_VALUE) * MAX_HEIGHT;
-                  var actualColor = Axiskey.value;
-                  var radius = (eElem._radiusAccesor(element, datavalue) / MAX_RADIUS_VALUE) * MAX_RADIUS;
+                  var ypos = (element.value / MAX_VALUE) * MAX_HEIGHT;
+                  var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
+                  var radius = (element.value2 / MAX_RADIUS_VALUE) * MAX_RADIUS;
                   var elPos = { x: relativeX, y: ypos , z: relativeZ };
                   var el = document.createElement('a-entity');
 
-                  el.setAttribute("mixin", "sph transparente");
-                  el.setAttribute("geometry",'radius', radius);
-                  el.setAttribute("material",'color', actualColor);
+                  el.setAttribute("geometry",{primitive:"sphere", radius: radius});
+                  el.setAttribute("material", { transparent: true, opacity: 0.4, color: actualColor });
                   el.setAttribute('position', elPos);
-                  //el.setAttribute("opacity", 0.5);
-                  //el.setAttribute("transparent", true);
                   eElem.appendChild(el);
 
                   //events.
-                  var valuePart = _data[i].value;
+                  var valuePart = element.value + " " + element.value2 ;
                   if (eElem._valueHandler)
-                      valuePart = eElem._valueHandler(element, datavalue);
-                  var keyPart = _data[i].key;
+                      valuePart = eElem._valueHandler(element );
+                  var keyPart = element.key1 + " " + element.key2;
                   if (eElem._keyHandler) {
-                      keyPart = eElem._keyHandler(datavalue);
+                      keyPart = eElem._keyHandler(element);
                   }
                   //storing parts info..
                   var barPart = {
                       name: "key:" + keyPart + " value:" + valuePart,
                       data: {
-                          key: _data[i].key,
-                          value: valuePart
+                          key1: element.key1,
+                          key2: element.key2,
+                          value: element.value,
+                          value2: element.value2
                       },
                       position: { x: elPos.x, y: relativeY + MAX_HEIGHT + 0.25, z: elPos.z },
                       origin_color: actualColor
@@ -1578,7 +1759,7 @@ AFRAME.registerComponent('bubblechart', {
                       if (chart.el._dimension) {
                           var myDim = chart.el._dimension;
                           myDim.filterAll(null);
-                          myDim = myDim.filter(element.data.key);
+                          myDim = myDim.filter(element.data.key1);
                           //llamada a redibujado de todo..
                           var dashboard;
                           if (chart.el._dashboard)
@@ -1612,11 +1793,14 @@ AFRAME.registerComponent('bubblechart', {
                   //exp.
                   //chart.el.emit("filtered", { element: element });
               }
-              relativeZ =relativeZ- zStep;
+              relativeZ = relativeZ - zStep;
+              indexOfData++;
           }
           relativeZ = -MAX_RADIUS / 2;
           relativeX += xStep;
       }
+
+
       this.addEvents();
       var entLabels = this.addYLabels();
       for (var lb = 0 ; lb < entLabels.length; lb++) {
@@ -1653,7 +1837,7 @@ AFRAME.registerComponent('bubblechart', {
           height: this.data.height,
           depth: this.data.depth,
           ysteps: this.data.ysteps,
-          zsteps: this.el._zAxis.length
+          zsteps: this._datakeys.keysTwo.length
       });
 
 
@@ -1662,7 +1846,7 @@ AFRAME.registerComponent('bubblechart', {
           width: this.data.width,
           depth: this.data.depth,
           xsteps: this.data.xsteps,
-          zsteps: this.el._zAxis.length
+          zsteps: this._datakeys.keysTwo.length
       });
       this.el.appendChild(gridEntityZY);
       this.el.appendChild(gridEntityXZ);
@@ -1693,21 +1877,9 @@ AFRAME.registerComponent('bubblechart', {
           texto.setAttribute('position', labelpos);
           return texto;
       }
-      var _data;
-      var eElem = this.el;
-      if (this.el._data) {
-          _data = this.el._data;
-      } else {
-          _data = this.el._group.top(Infinity);
-      }
-      //using value and height accessor to retrieve max's
-      var arrays = _data.map(function (p) {
-          var myp = p;
-          return eElem._arrAccesor(p).map(function (o) {
-              return eElem._heightAccesor(o, myp);
-          });
-      });
-      topYValue = Math.max.apply(null, ([].concat.apply([], arrays)));
+
+      topYValue = this.max_value;
+      numberOfValues = this._datakeys.keysOne.length;
       //Y AXIS
       //var numerOfYLabels=Math.round(_chart._height/20);
       var stepYValue = topYValue / this.data.ysteps;
@@ -1720,19 +1892,19 @@ AFRAME.registerComponent('bubblechart', {
       return labels;
   },
   addZLabels: function () {
-      if (!this.el._zAxis) return;
       var getZLabel = function (component, step, labelkv) {
           var curveSeg = 3;
           var texto = document.createElement("a-entity");
           TEXT_WIDTH = 6;
           //FIXME: depende del tama�o de letra...
           var xPos = -1 * ((TEXT_WIDTH / 2) + 0.7);
-          //var yPos = BasicChart._coords.y + step +  0.36778332145402703 / 2;
           var zPos = -step;
+          //todo: it must be optional
+          var actualColor = component.el._colors.find(function (d) { return d.key === labelkv; }).value;
           texto.setAttribute("text", {
-              color: labelkv.value,
+              color: actualColor,
               side: "double",
-              value: labelkv.key,
+              value: labelkv,
               width: TEXT_WIDTH,
               wrapCount: 30,
               align: "right"
@@ -1744,10 +1916,10 @@ AFRAME.registerComponent('bubblechart', {
           return texto;
       }
 
-      var stepZ = this.data.depth / this.el._zAxis.length;
+      var stepZ = this.data.depth / this._datakeys.keysTwo.length;
       var labels = [];
-      for (var i = 0; i < this.el._zAxis.length; i++) {
-          labels.push(getZLabel(this, i * stepZ + stepZ / 2, this.el._zAxis[i]));
+      for (var i = 0; i < this._datakeys.keysTwo.length; i++) {
+          labels.push(getZLabel(this, i * stepZ + stepZ / 2, this._datakeys.keysTwo[i]));
       };
 
       return labels;
@@ -2222,7 +2394,9 @@ AFRAME.registerComponent('smoothcurvechart', {
         width: { default: 10 },
         height: { default: 10 },
         depth: { default: 0.5 },
-        color: { default: '#00FF00' }
+        color: { default: '#00FF00' },
+        title: {default:""},
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
     onDataLoaded: utils.onDataLoaded,
   
@@ -2294,7 +2468,7 @@ AFRAME.registerComponent('smoothcurvechart', {
            new THREE.Vector3(x, (componentData.height * dataValues[i]), 0)
          );
           point.setAttribute("position", { x: x, y: (componentData.height * dataValues[i]), z: 0.2 });
-          eElem.appendChild(point);
+          //eElem.appendChild(point);
           //storing parts info..
           var boxPart = {
               name: "key:" + _data[i].key + " value:" + _data[i].value,
@@ -2322,6 +2496,13 @@ AFRAME.registerComponent('smoothcurvechart', {
       if (componentData.gridson) {
           this.addGrid();
       }
+      var entLabels = this.addYLabels();
+      for (var lb = 0 ; lb < entLabels.length; lb++) {
+          eElem.appendChild(entLabels[lb]);
+      }
+      if (componentData.title !== "") {
+          this.addTitle();
+      }
 
   },
   addGrid: function (entityEl) {
@@ -2337,19 +2518,19 @@ AFRAME.registerComponent('smoothcurvechart', {
   },
   addTitle: utils.addTitle,
   addEvents: utils.addEvents,
-  addYLabels : function () {
+  addYLabels: function () {
       var numberOfValues;
       var topYValue;
-      var getYLabel = function(component, step, value) {
+      var getYLabel = function (component, step, value) {
 
           var txt = value;
           var curveSeg = 3;
           var texto = document.createElement("a-entity");
           TEXT_WIDTH = 6;
           //FIXME: depende del tama�o de letra...
-          var xPos =     -0.7;
+          var xPos = -0.7;
           //var yPos = BasicChart._coords.y + step +  0.36778332145402703 / 2;
-          var yPos =   step;
+          var yPos = step;
           texto.setAttribute("text", {
               color: "#000000",
               side: "double",
@@ -2361,9 +2542,9 @@ AFRAME.registerComponent('smoothcurvechart', {
           //texto.setAttribute('geometry', { primitive: 'plane', width: 'auto', height: 'auto' });
           // Positions the text and adds it to the THREEDC.scene
           var labelpos = { x: xPos, y: yPos, z: -component.data.depth / 2 };
-          texto.setAttribute('position', labelpos); 
+          texto.setAttribute('position', labelpos);
           return texto;
-      } 
+      }
       var _data;
       var eElem = this.el;
       if (this.el._data) {
@@ -2376,18 +2557,17 @@ AFRAME.registerComponent('smoothcurvechart', {
               return eElem._valueHandler(a);
           }
           return a.value;
-      });;
+      });
       topYValue = Math.max.apply(null, dataValues);
       numberOfValues = dataValues.length;
       //Y AXIS
-      //var numerOfYLabels=Math.round(_chart._height/20);
-      var stepYValue= topYValue/this.data.ysteps;
-      var stepY=this.data.height/this.data.ysteps;
+      var stepYValue = topYValue / this.data.ysteps;
+      var stepY = this.data.height / this.data.ysteps;
       var labels = [];
-      for (var i = 0; i <this.data.ysteps +1; i++) {
+      for (var i = 0; i < this.data.ysteps + 1; i++) {
           labels.push(getYLabel(this, i * stepY, i * stepYValue));
       };
-        
+
       return labels;
   },
 
@@ -2790,13 +2970,14 @@ function aframedc() {
         obarChart.height = function (newradius) {
             this.setAttribute(this.componentName, "height", newradius);
             return this;
-        };
-        obarChart.orderFunction = function (newcallback) {
-            this._maxfunc = newcallback;
-            return this;
-        }
+        }; 
         obarChart.color = function (newcolorDict) {
             this._colors = newcolorDict;
+            return this;
+        }
+
+        obarChart.transformMethod = function (transformCall) {
+            this._transformFunc = transformCall;
             return this;
         }
         return obarChart;
@@ -2818,20 +2999,14 @@ function aframedc() {
             this.setAttribute(this.componentName, "height", newradius);
             return this;
         };
-        obubbleChart.heightAccessor = function (heightfunc) {
-            this._heightAccesor = heightfunc;
+
+        obubbleChart.color = function (newcolorDict) {
+            this._colors = newcolorDict;
             return this;
-        }
-        obubbleChart.radiusAccessor = function (rfunc) {
-            this._radiusAccesor = rfunc;
-            return this;
-        }
-        obubbleChart.arrayAccessor = function (arrfunc) {
-            this._arrAccesor = arrfunc;
-            return this;
-        }
-        obubbleChart.zAxis = function (newzaxis) {
-            this._zAxis = newzaxis;
+        };
+
+        obubbleChart.transformMethod = function (transformCall) {
+            this._transformFunc = transformCall;
             return this;
         }
         return obubbleChart;
@@ -2857,10 +3032,6 @@ function aframedc() {
             return this;
         }
 
-        obarChart.zAxis = function (newcolorDict) {
-            this._zAxis = newcolorDict;
-            return this;
-        }
         obarChart.transformMethod = function (transformCall) {
             this._transformFunc = transformCall;
             return this;

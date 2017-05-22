@@ -19,9 +19,10 @@ AFRAME.registerComponent('barchart3d', {
         zsteps: { default: 5 },
         width: { default: 10 },
         height: { default: 10 },
-        depth: { default: 0.5 },
+        depth: { default: 10 },
         color: { default: '#00FF00' },
-        title: { default: "" }
+        title: { default: "" },
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
     onDataLoaded: utils.onDataLoaded,
 
@@ -62,10 +63,11 @@ AFRAME.registerComponent('barchart3d', {
             _data = eElem._data;
         } else if (eElem._group) {
             //excepted to be as data directly retrieved.
-            //TODO: transform
             _data = eElem._group.all();
             _data = eElem._transformFunc(_data, eElem._colors);
         }
+
+
         var getKeys = function (mydata) {
             var keysOne = [];
             var keysTwo = [];
@@ -84,6 +86,7 @@ AFRAME.registerComponent('barchart3d', {
         MAX_HEIGHT = componentData.height;
 
         var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value }));
+        this.max_value = MAX_VALUE;
         var entityEl = document.createElement('a-entity');
         var yMaxPoint = 0;
 
@@ -91,6 +94,14 @@ AFRAME.registerComponent('barchart3d', {
         relativeX = BAR_WIDTH / 2;
         relativeY = 0;
         var indexOfData = 0;
+
+        //we define default colors if not defined.
+        if (!this.el._colors) {
+            this.el._colors = [];
+            for (var c = 0; c < dataKeys.keysTwo.length; c++) {
+                this.el._colors.push({ key: dataKeys.keysTwo[c],value: utils.colors[c % utils.colors.length]})
+            }
+        }
         for (var i = 0; i < dataKeys.keysOne.length; i++) {
             var indexOfZ= 0;
             for (var j = 0 ; j < dataKeys.keysTwo.length; j++) {
@@ -115,10 +126,10 @@ AFRAME.registerComponent('barchart3d', {
                     el.setAttribute('position', elPos);
 
 
-                    var valuePart = _data[i].value;
+                    var valuePart = _data[indexOfData].value ;
                     if (eElem._valueHandler)
                         valuePart = eElem._valueHandler(_data[indexOfData]);
-                    var keyPart = _data[i].key1;
+                    var keyPart = _data[indexOfData].key1 + " " +_data[indexOfData].key2;
                     if (eElem._keyHandler) {
                         keyPart = eElem._keyHandler(_data[indexOfData]);
                     }
@@ -141,7 +152,7 @@ AFRAME.registerComponent('barchart3d', {
                         if (chart.el._dimension) {
                             var myDim = chart.el._dimension;
                             myDim.filterAll(null);
-                            myDim = myDim.filter(element.data.key);
+                            myDim = myDim.filter(element.data.key1);
                             //llamada a redibujado de todo..
                             var dashboard;
                             if (chart.el._dashboard)
@@ -257,15 +268,8 @@ AFRAME.registerComponent('barchart3d', {
             texto.setAttribute('position', labelpos);
             return texto;
         }
-        var _data;
-        var eElem = this.el;
-        if (this.el._data) {
-            _data = this.el._data;
-        } else {
-            _data = this.el._group.top(Infinity);
-        }
 
-        topYValue = Math.max.apply(null, _data.map(function(d) { return d.value})  );
+        topYValue = this.max_value;
         numberOfValues = this._datakeys.keysOne.length;
         //Y AXIS
         //var numerOfYLabels=Math.round(_chart._height/20);

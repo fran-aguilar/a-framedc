@@ -17,7 +17,9 @@ AFRAME.registerComponent('smoothcurvechart', {
         width: { default: 10 },
         height: { default: 10 },
         depth: { default: 0.5 },
-        color: { default: '#00FF00' }
+        color: { default: '#00FF00' },
+        title: {default:""},
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
     onDataLoaded: utils.onDataLoaded,
   
@@ -89,7 +91,7 @@ AFRAME.registerComponent('smoothcurvechart', {
            new THREE.Vector3(x, (componentData.height * dataValues[i]), 0)
          );
           point.setAttribute("position", { x: x, y: (componentData.height * dataValues[i]), z: 0.2 });
-          eElem.appendChild(point);
+          //eElem.appendChild(point);
           //storing parts info..
           var boxPart = {
               name: "key:" + _data[i].key + " value:" + _data[i].value,
@@ -117,6 +119,13 @@ AFRAME.registerComponent('smoothcurvechart', {
       if (componentData.gridson) {
           this.addGrid();
       }
+      var entLabels = this.addYLabels();
+      for (var lb = 0 ; lb < entLabels.length; lb++) {
+          eElem.appendChild(entLabels[lb]);
+      }
+      if (componentData.title !== "") {
+          this.addTitle();
+      }
 
   },
   addGrid: function (entityEl) {
@@ -132,19 +141,19 @@ AFRAME.registerComponent('smoothcurvechart', {
   },
   addTitle: utils.addTitle,
   addEvents: utils.addEvents,
-  addYLabels : function () {
+  addYLabels: function () {
       var numberOfValues;
       var topYValue;
-      var getYLabel = function(component, step, value) {
+      var getYLabel = function (component, step, value) {
 
           var txt = value;
           var curveSeg = 3;
           var texto = document.createElement("a-entity");
           TEXT_WIDTH = 6;
           //FIXME: depende del tamaño de letra...
-          var xPos =     -0.7;
+          var xPos = -0.7;
           //var yPos = BasicChart._coords.y + step +  0.36778332145402703 / 2;
-          var yPos =   step;
+          var yPos = step;
           texto.setAttribute("text", {
               color: "#000000",
               side: "double",
@@ -156,9 +165,9 @@ AFRAME.registerComponent('smoothcurvechart', {
           //texto.setAttribute('geometry', { primitive: 'plane', width: 'auto', height: 'auto' });
           // Positions the text and adds it to the THREEDC.scene
           var labelpos = { x: xPos, y: yPos, z: -component.data.depth / 2 };
-          texto.setAttribute('position', labelpos); 
+          texto.setAttribute('position', labelpos);
           return texto;
-      } 
+      }
       var _data;
       var eElem = this.el;
       if (this.el._data) {
@@ -171,18 +180,17 @@ AFRAME.registerComponent('smoothcurvechart', {
               return eElem._valueHandler(a);
           }
           return a.value;
-      });;
+      });
       topYValue = Math.max.apply(null, dataValues);
       numberOfValues = dataValues.length;
       //Y AXIS
-      //var numerOfYLabels=Math.round(_chart._height/20);
-      var stepYValue= topYValue/this.data.ysteps;
-      var stepY=this.data.height/this.data.ysteps;
+      var stepYValue = topYValue / this.data.ysteps;
+      var stepY = this.data.height / this.data.ysteps;
       var labels = [];
-      for (var i = 0; i <this.data.ysteps +1; i++) {
+      for (var i = 0; i < this.data.ysteps + 1; i++) {
           labels.push(getYLabel(this, i * stepY, i * stepYValue));
       };
-        
+
       return labels;
   },
 

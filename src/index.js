@@ -361,13 +361,14 @@ function aframedc() {
         obarChart.height = function (newradius) {
             this.setAttribute(this.componentName, "height", newradius);
             return this;
-        };
-        obarChart.orderFunction = function (newcallback) {
-            this._maxfunc = newcallback;
-            return this;
-        }
+        }; 
         obarChart.color = function (newcolorDict) {
             this._colors = newcolorDict;
+            return this;
+        }
+
+        obarChart.transformMethod = function (transformCall) {
+            this._transformFunc = transformCall;
             return this;
         }
         return obarChart;
@@ -389,20 +390,14 @@ function aframedc() {
             this.setAttribute(this.componentName, "height", newradius);
             return this;
         };
-        obubbleChart.heightAccessor = function (heightfunc) {
-            this._heightAccesor = heightfunc;
+
+        obubbleChart.color = function (newcolorDict) {
+            this._colors = newcolorDict;
             return this;
-        }
-        obubbleChart.radiusAccessor = function (rfunc) {
-            this._radiusAccesor = rfunc;
-            return this;
-        }
-        obubbleChart.arrayAccessor = function (arrfunc) {
-            this._arrAccesor = arrfunc;
-            return this;
-        }
-        obubbleChart.zAxis = function (newzaxis) {
-            this._zAxis = newzaxis;
+        };
+
+        obubbleChart.transformMethod = function (transformCall) {
+            this._transformFunc = transformCall;
             return this;
         }
         return obubbleChart;
@@ -428,10 +423,6 @@ function aframedc() {
             return this;
         }
 
-        obarChart.zAxis = function (newcolorDict) {
-            this._zAxis = newcolorDict;
-            return this;
-        }
         obarChart.transformMethod = function (transformCall) {
             this._transformFunc = transformCall;
             return this;

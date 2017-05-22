@@ -45,89 +45,87 @@ AFRAME.registerComponent('bubblechart', {
       var componentData = this.data;
       if ((!eElem._data || eElem._data.length === 0) &&
          !eElem._group) return;
-      //var __calculateY = function (initialY, height) {
-      //    var returnedY = height / 2 + initialY;
-      //    return returnedY;
-      //};
+
 
 
       var _data;
       if (eElem._data && eElem._data.length > 0) {
           _data = eElem._data;
       } else if (eElem._group) {
+          //excepted to be as data directly retrieved.
+          //TODO: transform
           _data = eElem._group.all();
+          _data = eElem._transformFunc(_data, eElem._colors);
       }
+      var getKeys = function (mydata) {
+          var keysOne = [];
+          var keysTwo = [];
+          for (var i = 0; i < mydata.length; i++) {
+              if (keysOne.indexOf(mydata[i].key1) === -1) keysOne.push(mydata[i].key1);
+              if (keysTwo.indexOf(mydata[i].key2) === -1) keysTwo.push(mydata[i].key2);
+
+          };
+          return { keysOne: keysOne, keysTwo: keysTwo };
+      }
+      var dataKeys = getKeys(_data);
+      //storing keys
+      this._datakeys = dataKeys;
       var relativeX, relativeY, relativeZ;
         
         
-      var BAR_DEPTH = componentData.depth;
+      
       var MAX_HEIGHT = componentData.height;
-      //using value and height accessor to retrieve max's
-      var arrays = _data.map(function (p) {
-          var myp = p;
-          return eElem._arrAccesor(p).map(function (o) {
-              return eElem._heightAccesor(o, myp);
-          });
-      });
-      var MAX_VALUE = Math.max.apply(null, ([].concat.apply([], arrays)));
-      arrays = _data.map(function (p) {
-          var myp = p;
-          return eElem._arrAccesor(p).map(function (o) {
-              return eElem._radiusAccesor(o, myp);
-          });
-      });
-      var MAX_RADIUS_VALUE = Math.max.apply(null, ([].concat.apply([], arrays)));
-      var zAxis = eElem._zAxis;
-      if (!zAxis) {
-          //calculate axis data.
-          //TODO:
-      }
-      var MAX_RADIUS = Math.min(componentData.width,componentData.height ,componentData.depth)  / Math.min(_data.length, zAxis.length);
-      var zStep = (componentData.depth) / zAxis.length;
-      var xStep = (componentData.width )/ _data.length;
+
+      var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value; }));
+      this.max_value = MAX_VALUE;
+      var MAX_RADIUS_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value2; }));
+      var MAX_RADIUS = Math.min(componentData.width, componentData.height, componentData.depth) / Math.min(dataKeys.keysOne.length, dataKeys.keysTwo.length);
+      var zStep = (componentData.depth) / dataKeys.keysTwo.length;
+      var xStep = (componentData.width) / dataKeys.keysOne.length;
       relativeX = 0 ;
       relativeY = MAX_RADIUS;
-      relativeZ = -MAX_RADIUS/2  ;
-      for (var i = 0; i < _data.length; i++) {
-          for (var j = 0; j < zAxis.length; j++) {
-              var Axiskey = zAxis[j];
-              var datavalue = _data[i];
-              var findkey = function (k) {
-                  if (!k.key) return;
-                  return k.key === Axiskey.key;
-              }
-              var element = eElem._arrAccesor(datavalue).find(findkey);
-              if (element) {
+      relativeZ = -MAX_RADIUS / 2;
+      //we define default colors if not defined.
+      if (!this.el._colors) {
+          this.el._colors = [];
+          for (var c = 0; c < dataKeys.keysTwo.length; c++) {
+              this.el._colors.push({ key: dataKeys.keysTwo[c], value: utils.colors[c % utils.colors.length] })
+          }
+      }
+      var indexOfData = 0;
+      for (var i = 0; i < dataKeys.keysOne.length; i++) {
+          for (var j = 0; j < dataKeys.keysTwo.length; j++) {
+              var element = _data[indexOfData];
+              if (element.value !== 0 || element.value2 !== 0) {
                   //drawing element.
                   //we need to scale every item. be careful with this.
-                  var ypos = (eElem._heightAccesor(element,datavalue) / MAX_VALUE) * MAX_HEIGHT;
-                  var actualColor = Axiskey.value;
-                  var radius = (eElem._radiusAccesor(element, datavalue) / MAX_RADIUS_VALUE) * MAX_RADIUS;
+                  var ypos = (element.value / MAX_VALUE) * MAX_HEIGHT;
+                  var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
+                  var radius = (element.value2 / MAX_RADIUS_VALUE) * MAX_RADIUS;
                   var elPos = { x: relativeX, y: ypos , z: relativeZ };
                   var el = document.createElement('a-entity');
 
-                  el.setAttribute("mixin", "sph transparente");
-                  el.setAttribute("geometry",'radius', radius);
-                  el.setAttribute("material",'color', actualColor);
+                  el.setAttribute("geometry",{primitive:"sphere", radius: radius});
+                  el.setAttribute("material", { transparent: true, opacity: 0.4, color: actualColor });
                   el.setAttribute('position', elPos);
-                  //el.setAttribute("opacity", 0.5);
-                  //el.setAttribute("transparent", true);
                   eElem.appendChild(el);
 
                   //events.
-                  var valuePart = _data[i].value;
+                  var valuePart = element.value + " " + element.value2 ;
                   if (eElem._valueHandler)
-                      valuePart = eElem._valueHandler(element, datavalue);
-                  var keyPart = _data[i].key;
+                      valuePart = eElem._valueHandler(element );
+                  var keyPart = element.key1 + " " + element.key2;
                   if (eElem._keyHandler) {
-                      keyPart = eElem._keyHandler(datavalue);
+                      keyPart = eElem._keyHandler(element);
                   }
                   //storing parts info..
                   var barPart = {
                       name: "key:" + keyPart + " value:" + valuePart,
                       data: {
-                          key: _data[i].key,
-                          value: valuePart
+                          key1: element.key1,
+                          key2: element.key2,
+                          value: element.value,
+                          value2: element.value2
                       },
                       position: { x: elPos.x, y: relativeY + MAX_HEIGHT + 0.25, z: elPos.z },
                       origin_color: actualColor
@@ -138,7 +136,7 @@ AFRAME.registerComponent('bubblechart', {
                       if (chart.el._dimension) {
                           var myDim = chart.el._dimension;
                           myDim.filterAll(null);
-                          myDim = myDim.filter(element.data.key);
+                          myDim = myDim.filter(element.data.key1);
                           //llamada a redibujado de todo..
                           var dashboard;
                           if (chart.el._dashboard)
@@ -172,11 +170,14 @@ AFRAME.registerComponent('bubblechart', {
                   //exp.
                   //chart.el.emit("filtered", { element: element });
               }
-              relativeZ =relativeZ- zStep;
+              relativeZ = relativeZ - zStep;
+              indexOfData++;
           }
           relativeZ = -MAX_RADIUS / 2;
           relativeX += xStep;
       }
+
+
       this.addEvents();
       var entLabels = this.addYLabels();
       for (var lb = 0 ; lb < entLabels.length; lb++) {
@@ -213,7 +214,7 @@ AFRAME.registerComponent('bubblechart', {
           height: this.data.height,
           depth: this.data.depth,
           ysteps: this.data.ysteps,
-          zsteps: this.el._zAxis.length
+          zsteps: this._datakeys.keysTwo.length
       });
 
 
@@ -222,7 +223,7 @@ AFRAME.registerComponent('bubblechart', {
           width: this.data.width,
           depth: this.data.depth,
           xsteps: this.data.xsteps,
-          zsteps: this.el._zAxis.length
+          zsteps: this._datakeys.keysTwo.length
       });
       this.el.appendChild(gridEntityZY);
       this.el.appendChild(gridEntityXZ);
@@ -253,21 +254,9 @@ AFRAME.registerComponent('bubblechart', {
           texto.setAttribute('position', labelpos);
           return texto;
       }
-      var _data;
-      var eElem = this.el;
-      if (this.el._data) {
-          _data = this.el._data;
-      } else {
-          _data = this.el._group.top(Infinity);
-      }
-      //using value and height accessor to retrieve max's
-      var arrays = _data.map(function (p) {
-          var myp = p;
-          return eElem._arrAccesor(p).map(function (o) {
-              return eElem._heightAccesor(o, myp);
-          });
-      });
-      topYValue = Math.max.apply(null, ([].concat.apply([], arrays)));
+
+      topYValue = this.max_value;
+      numberOfValues = this._datakeys.keysOne.length;
       //Y AXIS
       //var numerOfYLabels=Math.round(_chart._height/20);
       var stepYValue = topYValue / this.data.ysteps;
@@ -280,19 +269,19 @@ AFRAME.registerComponent('bubblechart', {
       return labels;
   },
   addZLabels: function () {
-      if (!this.el._zAxis) return;
       var getZLabel = function (component, step, labelkv) {
           var curveSeg = 3;
           var texto = document.createElement("a-entity");
           TEXT_WIDTH = 6;
           //FIXME: depende del tamaño de letra...
           var xPos = -1 * ((TEXT_WIDTH / 2) + 0.7);
-          //var yPos = BasicChart._coords.y + step +  0.36778332145402703 / 2;
           var zPos = -step;
+          //todo: it must be optional
+          var actualColor = component.el._colors.find(function (d) { return d.key === labelkv; }).value;
           texto.setAttribute("text", {
-              color: labelkv.value,
+              color: actualColor,
               side: "double",
-              value: labelkv.key,
+              value: labelkv,
               width: TEXT_WIDTH,
               wrapCount: 30,
               align: "right"
@@ -304,10 +293,10 @@ AFRAME.registerComponent('bubblechart', {
           return texto;
       }
 
-      var stepZ = this.data.depth / this.el._zAxis.length;
+      var stepZ = this.data.depth / this._datakeys.keysTwo.length;
       var labels = [];
-      for (var i = 0; i < this.el._zAxis.length; i++) {
-          labels.push(getZLabel(this, i * stepZ + stepZ / 2, this.el._zAxis[i]));
+      for (var i = 0; i < this._datakeys.keysTwo.length; i++) {
+          labels.push(getZLabel(this, i * stepZ + stepZ / 2, this._datakeys.keysTwo[i]));
       };
 
       return labels;

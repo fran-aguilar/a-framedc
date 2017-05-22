@@ -18,7 +18,9 @@ AFRAME.registerComponent('barchartstack', {
         height: { default: 10 },
         depth: { default: 0.5 },
         color: { default: '#00FF00' },
-        title: { default: "" }
+
+        title: { default: "" },
+        src: { type: 'asset', default: 'https://rawgit.com/fran-aguilar/a-framedc/master/examples/data/lib/scm-commits-filtered.json' }
     },
 
   /**
@@ -48,18 +50,47 @@ AFRAME.registerComponent('barchartstack', {
           return returnedY;
       };
 
-
       var _data;
       if (eElem._data && eElem._data.length > 0) {
           _data = eElem._data;
       } else if (eElem._group) {
+          //excepted to be as data directly retrieved.
           _data = eElem._group.all();
+          _data = eElem._transformFunc(_data, eElem._colors);
       }
 
-      BAR_WIDTH = componentData.width / _data.length;;
-      BAR_DEPTH = componentData.depth;
+
+      var getKeys = function (mydata) {
+          var keysOne = [];
+          var keysTwo = [];
+          for (var i = 0; i < mydata.length; i++) {
+              if (keysOne.indexOf(mydata[i].key1) === -1) keysOne.push(mydata[i].key1);
+              if (keysTwo.indexOf(mydata[i].key2) === -1) keysTwo.push(mydata[i].key2);
+
+          };
+          return { keysOne: keysOne, keysTwo: keysTwo };
+      }
+      var dataKeys = getKeys(_data);
+      //storing keys
+      this._datakeys = dataKeys;
+      BAR_WIDTH = componentData.width / dataKeys.keysOne.length;
+      BAR_DEPTH = componentData.depth  ;
       MAX_HEIGHT = componentData.height;
-      MAX_VALUE = eElem._maxfunc(eElem._group.order(eElem._maxfunc).top(1)[0].value);
+      //getting max value of y is the max summatory
+      var MAX_VALUE = 0;
+      var ixdata = 0;
+      var aux_sum = 0;
+      for (var m = 0 ; m < dataKeys.keysOne.length; m++) {
+          for (var n = 0 ; n < dataKeys.keysTwo.length; n++) {
+              aux_sum += _data[ixdata].value;
+              ixdata++;
+          }
+          if (MAX_VALUE < aux_sum) MAX_VALUE = aux_sum;
+          aux_sum = 0;
+      };
+
+      //var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value }));
+      this.max_value = MAX_VALUE;
       var entityEl = document.createElement('a-entity');
       var yMaxPoint = 0;
 
@@ -67,26 +98,22 @@ AFRAME.registerComponent('barchartstack', {
       relativeX = BAR_WIDTH / 2;
       relativeY = 0;
       relativeZ = componentData.depth / 2;
-
-      for (var i = 0; i < _data.length; i++) {
-          var sortedValues = _data[i].value.slice();
-          sortedValues.sort(function (a, b) {
-              if (a.value < b.value) {
-                  return 1;
-              }
-              if (a.value > b.value) {
-                  return -1;
-              }
-              // a must be equal to b
-              return 0;
-          });
-          for (var j = 0 ; j < sortedValues.length; j++) {
+      var indexOfData = 0;
+      //we define default colors if not defined.
+      if (!this.el._colors) {
+          this.el._colors = [];
+          for (var c = 0; c < dataKeys.keysTwo.length; c++) {
+              this.el._colors.push({ key: dataKeys.keysTwo[c], value: utils.colors[c % utils.colors.length] })
+          }
+      }
+      for (var i = 0; i < dataKeys.keysOne.length; i++) {
+          for (var j = 0 ; j < dataKeys.keysTwo.length; j++) {
               //we need to scale every item.
-              var myHeight = (sortedValues[j].value / MAX_VALUE) * MAX_HEIGHT;
+              var myHeight = (_data[indexOfData].value / MAX_VALUE) * MAX_HEIGHT;
 
               var myYPosition = __calculateY(relativeY, myHeight);
               var el = document.createElement('a-box');
-              var actualColor = eElem._colors.find(function (a) { return a.key === sortedValues[j].key }).value;
+              var actualColor = eElem._colors.find(function (a) { return a.key === _data[indexOfData].key2 }).value;
               var elPos = { x: relativeX, y: myYPosition, z: 0 };
 
               el.setAttribute('width', BAR_WIDTH);
@@ -96,19 +123,20 @@ AFRAME.registerComponent('barchartstack', {
               el.setAttribute('position', elPos);
 
 
-              var valuePart = _data[i].value;
+              var valuePart = _data[indexOfData].value;
               if (eElem._valueHandler)
-                  valuePart = eElem._valueHandler(_data[i]);
-              var keyPart = _data[i].key;
+                  valuePart = eElem._valueHandler(_data[indexOfData]);
+              var keyPart = _data[indexOfData].key1 + " " + _data[indexOfData].key2;
               if (eElem._keyHandler) {
-                  keyPart = eElem._keyHandler(_data[i]);
+                  keyPart = eElem._keyHandler(_data[indexOfData]);
               }
               //storing parts info..
               var barPart = {
-                  name: "key:" + keyPart + " org:" + sortedValues[j].key + " value: " + sortedValues[j].value,
+                  name: "key:" + keyPart + " value:" + valuePart,
                   data: {
-                      key: _data[i].key,
-                      value: valuePart
+                      key1: _data[i].key1,
+                      key2: _data[i].key2,
+                      value: _data[i].value
                   },
                   position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z + relativeZ },
                   origin_color: actualColor
@@ -153,6 +181,8 @@ AFRAME.registerComponent('barchartstack', {
               var myBindFunc = myFunc.bind(null, this, el._partData);
               el.addEventListener("click", myBindFunc);
               relativeY = relativeY + myHeight;
+              //global index
+              indexOfData++;
           }
           relativeY = 0;
           relativeX += BAR_WIDTH;
@@ -213,16 +243,9 @@ AFRAME.registerComponent('barchartstack', {
           texto.setAttribute('position', labelpos);
           return texto;
       }
-      var _data;
-      var eElem = this.el;
-      if (this.el._data) {
-          _data = this.el._data;
-      } else {
-          _data = this.el._group.top(Infinity);
-      }
 
-      topYValue = eElem._maxfunc(eElem._group.order(eElem._maxfunc).top(1)[0].value);
-      numberOfValues = _data.length;
+      topYValue = this.max_value;
+      numberOfValues = this._datakeys.keysOne.length;
       //Y AXIS
       //var numerOfYLabels=Math.round(_chart._height/20);
       var stepYValue = topYValue / this.data.ysteps;
@@ -237,11 +260,11 @@ AFRAME.registerComponent('barchartstack', {
   addleyenda: function () {
       var leyendaEntity = document.createElement("a-entity");
       leyendaEntity.id = "barchart3dleyend";
-      var topValue= this.el._group.top(1)[0];
+      var topValue= this.el._colors;
       var xPos = this.data.width +0.25 +1;
       var ystep = this.data.height -0.25;
-      for (var i = 0; i < topValue.value.length; i++) {
-          var actualColor = this.el._colors.find(function (a) { return a.key === topValue.value[i].key }).value;
+      for (var i = 0; i < Math.min(topValue.length,10); i++) {
+          var actualColor =  topValue[i].value;
           var colorbox = document.createElement("a-box");
           colorbox.setAttribute("color", actualColor);
           colorbox.setAttribute("width", 0.5);
@@ -251,7 +274,7 @@ AFRAME.registerComponent('barchartstack', {
           var curveSeg = 3;
           var texto = document.createElement("a-entity");
           TEXT_WIDTH = 6;
-          var txt = topValue.value[i].key;
+          var txt = topValue[i].key;
           texto.setAttribute("text", {
               color: "#000000",
               side: "double",
