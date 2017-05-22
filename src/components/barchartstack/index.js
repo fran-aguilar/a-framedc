@@ -134,9 +134,9 @@ AFRAME.registerComponent('barchartstack', {
               var barPart = {
                   name: "key:" + keyPart + " value:" + valuePart,
                   data: {
-                      key1: _data[i].key1,
-                      key2: _data[i].key2,
-                      value: _data[i].value
+                      key1: _data[indexOfData].key1,
+                      key2: _data[indexOfData].key2,
+                      value: _data[indexOfData].value
                   },
                   position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z + relativeZ },
                   origin_color: actualColor
@@ -149,7 +149,7 @@ AFRAME.registerComponent('barchartstack', {
                   if (chart.el._dimension) {
                       var myDim = chart.el._dimension;
                       myDim.filterAll(null);
-                      myDim = myDim.filter(element.data.key);
+                      myDim = myDim.filter(element.data.key1);
                       //llamada a redibujado de todo..
                       var dashboard;
                       if (chart.el._dashboard)

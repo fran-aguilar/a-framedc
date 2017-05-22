@@ -137,9 +137,9 @@ AFRAME.registerComponent('barchart3d', {
                     var barPart = {
                         name: "key:" + keyPart + " value:" + valuePart,
                         data: {
-                            key1: _data[i].key1,
-                            key2: _data[i].key2,
-                            value: _data[i].value
+                            key1: _data[indexOfData].key1,
+                            key2: _data[indexOfData].key2,
+                            value: _data[indexOfData].value
                         },
                         position: { x: elPos.x, y: MAX_HEIGHT + 0.25, z: elPos.z },
                         origin_color: actualColor
