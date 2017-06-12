@@ -141,12 +141,13 @@ AFRAME.registerComponent('barchart', {
             el.addEventListener("click", myBindFunc);
         }
         this.addEvents();
-        var entLabels = this.addYLabels();
-        for (var lb = 0 ; lb < entLabels.length; lb++) {
-            eElem.appendChild(entLabels[lb]);
-        }
+
         if (componentData.gridson) {
             this.addGrid();
+            var entLabels = this.addYLabels();
+            for (var lb = 0 ; lb < entLabels.length; lb++) {
+                eElem.appendChild(entLabels[lb]);
+            }
         }
         if (componentData.title !== "") {
             this.addTitle();

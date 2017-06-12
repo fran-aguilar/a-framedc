@@ -215,6 +215,10 @@ function aframedc() {
             this.setAttribute(this.componentName, "title", newTitle);
             return this;
         },
+        gridsOn : function (havegrid) {
+            this.setAttribute(this.componentName, "gridson", havegrid);
+            return this;
+        },
         valueAccessor: function (valueHandler) {
             this._valueHandler = valueHandler;
             return this;
