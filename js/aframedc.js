@@ -1200,12 +1200,13 @@ AFRAME.registerComponent('barchart', {
             el.addEventListener("click", myBindFunc);
         }
         this.addEvents();
-        var entLabels = this.addYLabels();
-        for (var lb = 0 ; lb < entLabels.length; lb++) {
-            eElem.appendChild(entLabels[lb]);
-        }
+
         if (componentData.gridson) {
             this.addGrid();
+            var entLabels = this.addYLabels();
+            for (var lb = 0 ; lb < entLabels.length; lb++) {
+                eElem.appendChild(entLabels[lb]);
+            }
         }
         if (componentData.title !== "") {
             this.addTitle();
@@ -2825,6 +2826,10 @@ function aframedc() {
         },
         setTitle: function (newTitle) {
             this.setAttribute(this.componentName, "title", newTitle);
+            return this;
+        },
+        gridsOn : function (havegrid) {
+            this.setAttribute(this.componentName, "gridson", havegrid);
             return this;
         },
         valueAccessor: function (valueHandler) {

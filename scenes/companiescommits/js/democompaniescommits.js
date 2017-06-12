@@ -49,8 +49,8 @@ window.onload = function () {
         var dimByOrg = cf.dimension(function (p) { return p.org; });
         var groupByOrg = dimByOrg.group().reduceCount();
 
-        mypiechart.dimension(dimByOrg).group(groupByOrg).radius(2.5).setTitle("commits per company");
-        mybarchart.dimension(dimByMonth).group(groupByMonth).width(30).setTitle("commits per month");
+        mypiechart.dimension(dimByOrg).group(groupByOrg).radius(2.5) ;
+        mybarchart.dimension(dimByMonth).group(groupByMonth).width(30).gridsOn(false) ;
 
         var coordPieChart = { x: -9, y: 0, z: 0 };
         var coordBarChart = { x: 0, y: 0, z: 0 };
