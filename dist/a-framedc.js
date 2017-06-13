@@ -1,4 +1,4 @@
-var a-framedc =
+window["a-framedc"] =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};

@@ -9,7 +9,8 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, './dist'),
         filename: minimizeOpt ? 'a-framedc.min.js' : 'a-framedc.js',
-        library: 'a-framedc'
+        library: 'a-framedc',
+        libraryTarget:"window"
     }
 };
 if (minimizeOpt) {

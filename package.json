@@ -2,7 +2,8 @@
   "name": "a-framedc",
   "version": "1.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "dist/a-framedc.js",
+  "module": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack-dev.config.js && webpack --optimize-minimize --config webpack-dev.config.js &&  copyfiles -u 1 dist/*.js examples/js",
