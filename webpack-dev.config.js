@@ -4,13 +4,13 @@ var webpack = require('webpack');
 var minimizeOpt = process.argv.indexOf('--optimize-minimize') !== -1;
 
 
-module.exports = { 
+module.exports = {
     entry: "./src/index.js",
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: minimizeOpt ? 'aframedc.min.js' : 'aframedc.js',
+        filename: minimizeOpt ? 'a-framedc.min.js' : 'a-framedc.js',
         libraryTarget: 'window',
-        library: 'aframedc'
+        library: 'a-framedc'
     }
 };
 if (minimizeOpt) {
