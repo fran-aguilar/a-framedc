@@ -297,9 +297,8 @@ AFRAME.registerComponent('aframe-grid', {
                             that.reload = false;
                             that.el.setAttribute('visible', true);
                         });
-                    } else if (that.data.src.constructor === Object) {
-                        // Set font if already have a typeface.json through setAttribute.
-                        that.el._data = data.src;
+                    } else if (that.data.src.constructor === Array) {
+                        that.el._data = that.data.src;
                         that.initChart();
                         that.reload = false;
                         that.el.setAttribute('visible', true);
