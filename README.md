@@ -31,5 +31,5 @@ Then register and use.
 
 ```js
 require('aframe');
-require('a-framedc');
+var aframedc = require('a-framedc');
 ```

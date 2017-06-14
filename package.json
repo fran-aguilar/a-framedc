@@ -1,14 +1,28 @@
 {
   "name": "a-framedc",
   "version": "1.0.6",
-  "description": "",
+  "description": "Charts of data built on A-Frame",
+  "homepage": "https://fran-aguilar.github.io/a-framedc/",
   "main": "dist/aframedc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack-dev.config.js && webpack --optimize-minimize --config webpack-dev.config.js &&  copyfiles -u 1 dist/*.js examples/js",
     "start": "webpack-dev-server --config webpack-dev.config.js"
   },
-  "keywords": [],
+  "keywords": [
+    "3d",
+    "aframe",
+    "cardboard",
+    "components",
+    "three",
+    "three.js",
+    "vr",
+    "webvr",
+    "charts",
+    "statistics",
+    "visualization"
+  ],
+  "repository":"fran-aguilar/a-framedc",
   "author": "",
   "license": "ISC",
   "devDependencies": {
