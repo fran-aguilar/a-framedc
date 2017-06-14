@@ -9,7 +9,7 @@ Install and use by directly including the [browser files](dist):
 <head>
   <title>My A-Frame Scene</title>
   <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
-  <script src="https://unpkg.com/a-framedc@1.0.0/dist/aframedc.min.js"></script>
+  <script src="https://unpkg.com/a-framedc@1.0.7/dist/aframedc.min.js"></script>
 </head>
 
 <body>
