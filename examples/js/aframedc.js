@@ -1,5 +1,14 @@
-var aframedc =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["aframedc"] = factory();
+	else
+		root["aframedc"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -288,7 +297,7 @@ AFRAME.registerComponent('aframe-grid', {
                             that.reload = false;
                             that.el.setAttribute('visible', true);
                         });
-                    } else if (thata.data.src.constructor === Object) {
+                    } else if (that.data.src.constructor === Object) {
                         // Set font if already have a typeface.json through setAttribute.
                         that.el._data = data.src;
                         that.initChart();
@@ -311,7 +320,7 @@ AFRAME.registerComponent('aframe-grid', {
                 this.reload = false;
                 this.el.setAttribute('visible', true);
             } else {
-                //updating single elements. 
+                //updating single elements.
                 var diff = AFRAME.utils.diff(oldData, this.data);
                 if (diff.title !== "") {
                     var titleEntity = this.el.querySelector("[title]");
@@ -534,6 +543,7 @@ AFRAME.registerComponent('aframe-grid', {
 };
 
 module.exports = utils();
+
 
 /***/ }),
 /* 3 */
@@ -3078,3 +3088,4 @@ module.exports = aframedc();
 
 /***/ })
 /******/ ]);
+});

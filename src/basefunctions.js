@@ -26,7 +26,7 @@
                             that.reload = false;
                             that.el.setAttribute('visible', true);
                         });
-                    } else if (thata.data.src.constructor === Object) {
+                    } else if (that.data.src.constructor === Object) {
                         // Set font if already have a typeface.json through setAttribute.
                         that.el._data = data.src;
                         that.initChart();
@@ -49,7 +49,7 @@
                 this.reload = false;
                 this.el.setAttribute('visible', true);
             } else {
-                //updating single elements. 
+                //updating single elements.
                 var diff = AFRAME.utils.diff(oldData, this.data);
                 if (diff.title !== "") {
                     var titleEntity = this.el.querySelector("[title]");

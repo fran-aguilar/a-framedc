@@ -9,7 +9,8 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, './dist'),
         filename: minimizeOpt ? 'aframedc.min.js' : 'aframedc.js',
-        library: 'aframedc'
+        library: 'aframedc',
+        libraryTarget: 'umd'
     }
 };
 if (minimizeOpt) {
