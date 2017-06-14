@@ -1,4 +1,4 @@
-window["aframedc"] =
+var aframedc =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};

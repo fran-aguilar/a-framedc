@@ -8,9 +8,8 @@ module.exports = {
     entry: "./src/index.js",
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: minimizeOpt ? 'a-framedc.min.js' : 'a-framedc.js',
-        library: 'a-framedc',
-        libraryTarget:"window"
+        filename: minimizeOpt ? 'aframedc.min.js' : 'aframedc.js',
+        library: 'aframedc'
     }
 };
 if (minimizeOpt) {
