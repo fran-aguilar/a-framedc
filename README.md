@@ -5,6 +5,16 @@ charts built with A-frame
 
 Install and use by directly including the [browser files](dist):
 
+ +**addDashBoard(AFrameScene):** Allows us to associate a dashboard with an existing A-Frame scene. To do this, we must pass through this scene. Returns the dashboard object.																																									  </li>
+ +**Dashboard(containerdiv):** Allows us to create a new scene from scratch. It initialize a default configuration by creating the scene and a default camera. Returns the dashboard object.																																					  </li>
+ +**Panel** creates a new [panel](https://github.com/fran-aguilar/kframe/tree/master/components/animation/) to add charts to it.																																																																							  </li>
+ +**barChart:** Creates an A-Frame entity associated with the barchart component.This is a chart which visualizes the evolution of a value or attribute along an axis, commonly time, with bars of different heights.																															  </li>
+ +**pieChart:** Creates an A-Frame entity associated with the piechart component.This is a chart which composes a circle that represents the different parts of a whole in a set of segments of  that circle until completing it.																												  </li>
+ +**bubbleChart:** Creates an A-Frame entity associated with the bubblechart component.This is a chart that represents different spheres of different position and size depending on different categories. In the context of our library we play with the following parameters: width, height, depth and radius of the sphere.					  </li>
+ +**barChart3d:** Creates an A-Frame entity associated with the barChart3d component. It is a chart which has bars of different heights like barchart, but the height of each bar is determined by two values of two different categories. These bars are drawn along two axis.																	  </li>
+ +**barChartstack:** Creates an A-Frame entity associated with the barchartstack component.This is also a bar chart, in this case each bar is composed of parts of different size that make up the total of the bar in that specific value.																										  </li>
+ +**smoothCurveChart:** Creates an A-Frame entity associated with the smoothcurvechart component.This is a graph with a line representing the evolution of a value or attribute along an axis. This graph does not respond directly to user actions, mouse events etc. Your data is updated if your group / dimension of crossfilter is affected. </li>
+
 ```html
 <head>
   <title>My A-Frame Scene</title>
@@ -13,9 +23,12 @@ Install and use by directly including the [browser files](dist):
 </head>
 
 <body>
-  <a-scene>
-    <a-entity barchart="width:10;height:10;" />
-  </a-scene>
+	<a-scene>
+	<a-assets>
+		<a-asset-item id="barsdata" src="http://path/to/your/file.json"></a-asset-item>
+	</a-assets>
+	<a-entity id="bars" barchart="width:14;gridson:true;title:example barchart;src:#barsdata"></a-entity>
+	</a-scene>
 </body>
 ```
 
