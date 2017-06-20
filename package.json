@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack-dev.config.js && webpack --optimize-minimize --config webpack-dev.config.js &&  copyfiles -u 1 dist/*.js examples/js",
-    "start": "webpack-dev-server --config webpack-dev.config.js"
+    "start": "webpack-dev-server --host 0.0.0.0 --config webpack-dev.config.js"
   },
   "keywords": [
     "3d",

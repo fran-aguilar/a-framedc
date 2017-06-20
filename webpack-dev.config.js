@@ -11,6 +11,10 @@ module.exports = {
         filename: minimizeOpt ? 'aframedc.min.js' : 'aframedc.js',
         library: 'aframedc',
         libraryTarget: 'umd'
+    },
+    devServer: {
+        host: '0.0.0.0',
+        disableHostCheck: true
     }
 };
 if (minimizeOpt) {
