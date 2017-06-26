@@ -50,11 +50,14 @@ window.onload = function () {
         var groupByOrg = dimByOrg.group().reduceCount();
 
         mypiechart.dimension(dimByOrg).group(groupByOrg).radius(2.5) ;
-        mybarchart.dimension(dimByMonth).group(groupByMonth).width(30).gridsOn(false) ;
+        mybarchart.dimension(dimByMonth).group(groupByMonth).width(30).gridsOn(true) ;
 
         var coordPieChart = { x: -9, y: 0, z: 0 };
         var coordBarChart = { x: 0, y: 0, z: 0 };
         myDashboard.addChart(mypiechart, coordPieChart);
         myDashboard.addChart(mybarchart, coordBarChart);
+
+        var camera = document.querySelector("[camera]");
+        camera.setAttribute("position", { x: 11.21 , y: 0, z: 16.57});
     }
 }
