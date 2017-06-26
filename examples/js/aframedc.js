@@ -1653,6 +1653,7 @@ AFRAME.registerComponent('bubblechart', {
         xsteps: { default: 5 },
         ysteps: { default: 5 },
         zsteps: { default: 10 },
+        maxradius:{default: 0 },
         width: { default: 10 },
         height: { default: 10 },
         depth: { default: 20 },
@@ -1715,7 +1716,13 @@ AFRAME.registerComponent('bubblechart', {
       var MAX_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value; }));
       this.max_value = MAX_VALUE;
       var MAX_RADIUS_VALUE = Math.max.apply(null, _data.map(function (d) { return d.value2; }));
-      var MAX_RADIUS = Math.min(componentData.width, componentData.height, componentData.depth) / Math.min(dataKeys.keysOne.length, dataKeys.keysTwo.length);
+      var MAX_RADIUS = 1;
+      if (componentData.maxradius > 0) {
+          MAX_RADIUS = componentData.maxradius;
+      }
+      else {
+          MAX_RADIUS = Math.min(componentData.width, componentData.height, componentData.depth) / Math.min(dataKeys.keysOne.length, dataKeys.keysTwo.length);
+      }
       var zStep = (componentData.depth) / dataKeys.keysTwo.length;
       var xStep = (componentData.width) / dataKeys.keysOne.length;
       relativeX = 0 ;
@@ -3016,7 +3023,10 @@ function aframedc() {
             this.setAttribute(this.componentName, "height", newradius);
             return this;
         };
-
+        obubbleChart.maxRadius = function (newradius) {
+            this.setAttribute(this.componentName, "maxradius", newradius);
+            return this;
+        };
         obubbleChart.color = function (newcolorDict) {
             this._colors = newcolorDict;
             return this;

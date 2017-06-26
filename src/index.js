@@ -394,7 +394,10 @@ function aframedc() {
             this.setAttribute(this.componentName, "height", newradius);
             return this;
         };
-
+        obubbleChart.maxRadius = function (newradius) {
+            this.setAttribute(this.componentName, "maxradius", newradius);
+            return this;
+        };
         obubbleChart.color = function (newcolorDict) {
             this._colors = newcolorDict;
             return this;

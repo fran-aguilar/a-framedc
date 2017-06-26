@@ -469,6 +469,7 @@ window.onload = function () {
           .width(10)
           .depth(10)
           .height(10)
+          .maxRadius(1)
           .setTitle("contribution by company ");
         var angle = THREE.Math.degToRad(-45);
         var axis = new THREE.Vector3(0, 1, 0);
