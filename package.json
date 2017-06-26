@@ -1,6 +1,6 @@
 {
   "name": "a-framedc",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Charts of data built on A-Frame",
   "homepage": "https://fran-aguilar.github.io/a-framedc/",
   "main": "dist/aframedc.js",
