@@ -5,10 +5,8 @@
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
 	<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.8.3/dist/aframe-extras.js"></script>
     <script src="//cdn.rawgit.com/donmccurdy/aframe-proxy-controls/master/dist/aframe-proxy-controls.min.js"></script>
-    <!--<script src="//cdn.rawgit.com/donmccurdy/aframe-gamepad-controls/master/dist/aframe-gamepad-controls.min.js"></script>-->
     <script src="https://unpkg.com/aframe-animation-component@3.2.5/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-text-geometry-component/dist/aframe-text-geometry-component.min.js"></script>
-    <!-- <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script> -->
     <script src="../../js/aframedc.js"></script>
 
     <script src="js/demoOPNFV1105.js"></script>
@@ -23,7 +21,7 @@
 <body>
 
     <div id="myscene">
-        <a-scene  proxy-controls="proxyUrl:http://192.168.1.130:3000" >
+        <a-scene  proxy-controls>
             <a-assets>
                 <a-mixin id="sph" geometry="primitive:sphere"></a-mixin>
                 <a-mixin id="transparente" material="transparent:true;opacity:0.4"></a-mixin>
