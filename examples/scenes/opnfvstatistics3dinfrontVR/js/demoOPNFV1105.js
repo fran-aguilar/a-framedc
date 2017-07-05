@@ -577,6 +577,8 @@ window.onload = function () {
             var rotation = { x: 4.1, y: -176, z: 0 };
             camera.setAttribute("position", position);
             camera.setAttribute("rotation", rotation);
+			camera.components["universal-controls"].pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+			camera.components["universal-controls"].yaw.rotation.y = THREE.Math.degToRad(rotation.y);
         });
 
         var mycheckpointA = document.querySelector("#checkpointa");
@@ -587,6 +589,8 @@ window.onload = function () {
             var rotation = { x:3.54,y: 0.415,z: 0};
             camera.setAttribute("position", position);
             camera.setAttribute("rotation", rotation);
+			camera.components["universal-controls"].pitch.rotation.x = THREE.Math.degToRad(rotation.x);
+			camera.components["universal-controls"].yaw.rotation.y = THREE.Math.degToRad(rotation.y);
         });
         
         var initText = "current filters are:";
