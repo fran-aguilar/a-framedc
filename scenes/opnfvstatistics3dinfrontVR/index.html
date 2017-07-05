@@ -16,6 +16,39 @@
             margin: 0;
             padding: 0;
         }
+		.overlayleft {
+    position: absolute;
+    right: 20px;
+    left: 20px;
+    max-width: calc(100% - 40px);
+    box-sizing: border-box;
+    color: rgb(255, 255, 255);
+    font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.2em;
+    padding: 0.5em;
+    background: rgba(0, 0, 0, 0.35);
+}
+		@media screen and (min-width: 550px){
+		.overlayleft {
+			right: auto;
+			bottom: 90px;
+			left: 20px;
+		}
+}
+
+.overlayleft-x {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.35);
+}
     </style>
 </head>
 <body>
@@ -49,14 +82,7 @@
                 <a-plane color="#FFF" height="17" width="11.5" position="0 1 1.55"></a-plane>
                 <a-entity position="-2.2 6.9 1.61" text-geometry="value:GIT ANALYTICS;"
                           material="color:black"></a-entity>
-                <a-entity id="text"
-                          geometry="primitive: box; width: 11;height:2.27; depth: 0.01"
-                          material="color:white"
-                          position="0.24 5.65 1.65"
-                          text="color: black; align: left; value: click on pie's bar, spheres or bars to filter. Move around with keyboard arrows or clicking circles on the floor; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1"
-                          animation__color="property:text.color;to:#000;from:#FF0;startEvents:mouseenter">
 
-                </a-entity>
                 <a-entity id="textchnback"
                           geometry="primitive: box; width: 11;height:1.00; depth: 0.01"
                           material="color:white"
@@ -92,6 +118,18 @@
                       text="color: grey; align: right; value: TOGGLE GROUND; width: 18; wrapCount: 30 ">
             </a-entity>-->
         </a-scene>
+		<div class="overlayleft"  id="infogamepad">
+		use joystick to move <br />
+		<span style="color:blue">X</span> button to do a click <br />
+		<span style="color:green">&#8420;</span> button to toggle eyehole
+		<div class="overlayleft-x" id="closeinfogamepad">x</div>
+		<script>
+		document.querySelector("#closeinfogamepad").addEventListener("click", function(x){
+			var info= document.querySelector("#infogamepad");
+			info.parentNode.removeChild(info);
+		});
+		</script>
+		</div>
     </div>
 
 
@@ -137,6 +175,13 @@
         }
     </style>
     <!-- End GitHub Corner. -->
+                <!-- <a-entity id="text" -->
+                          <!-- geometry="primitive: box; width: 11;height:2.27; depth: 0.01" -->
+                          <!-- material="color:white" -->
+                          <!-- position="0.24 5.65 1.65" -->
+                          <!-- text="color: black; align: left; value: click on pie's bar, spheres or bars to filter. Move around with keyboard arrows or clicking circles on the floor; width: 11; wrapCount: 30;anchor:center;zOffset: 0.1" -->
+                          <!-- animation__color="property:text.color;to:#000;from:#FF0;startEvents:mouseenter"> -->
 
+                <!-- </a-entity> -->
 </body>
 </html>
